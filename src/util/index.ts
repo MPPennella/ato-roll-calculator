@@ -1,6 +1,9 @@
+import type { PowerDie } from "../types/PowerDie"
+
+
 // Prototype dice property objects
 
-const RED_DIE = {
+const RED_DIE : PowerDie = {
     sides: [
         [0,0,1],
         [0,1,0],
@@ -11,7 +14,7 @@ const RED_DIE = {
     ]
 }
 
-const BLACK_DIE = {
+const BLACK_DIE : PowerDie = {
     sides: [
         [0,1,1],
         [1,1,0],
@@ -22,7 +25,7 @@ const BLACK_DIE = {
     ]
 }
 
-const WHITE_DIE = {
+const WHITE_DIE : PowerDie = {
     sides: [
         [1,2,1],
         // [0,0,0], //unknown values for this side
@@ -36,7 +39,8 @@ const WHITE_DIE = {
 
 // Prototype code for simulating outcomes of multiple dice
 
-let die1, die2 = RED_DIE
+let die1:PowerDie = RED_DIE
+let die2:PowerDie = RED_DIE
 
 let outcomeList = die1.sides.map( (v,i) => {
     return die2.sides.map( (e,j) => {
@@ -64,3 +68,5 @@ let numSuccesses = outcomeList.reduce( (acc, curr) => {
 let successPcnt = numSuccesses/outcomeList.length
 
 console.log(successPcnt)
+
+export {}
