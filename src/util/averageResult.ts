@@ -1,4 +1,4 @@
-import type {PowerDieFace} from "../types/PowerDie"
+import type {PowerDieFace} from "../types/PowerDieFace"
 
 export default function averageResults ( outcomeList:Array<PowerDieFace>, breakValue:number ) : number|undefined {
     const numTerms:number = outcomeList.length

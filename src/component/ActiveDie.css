@@ -5,6 +5,19 @@
     background-color: #a01925;
 }
 
+.RedDie {
+    background-color: #a01925;
+}
+
+.BlackDie {
+    background-color: black;
+    color: white
+}
+
+.WhiteDie {
+    background-color: white;
+}
+
 .DieWrapper {
     display: flex;
     padding: 30px;

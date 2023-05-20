@@ -1,0 +1,11 @@
+.ConditionSelectPanel {
+    margin: 10px;
+    border: 2px solid #010101;
+    padding: 5px;
+    /* min-height: 200px; */
+}
+
+input {
+    width: 30px;
+    margin-left: 15px;
+}

@@ -1,4 +1,4 @@
-import type {PowerDieFace} from "../types/PowerDie"
+import type {PowerDieFace} from "../types/PowerDieFace"
 
 export default function thresholdCheck ( thresholdValue:number, breakValue:number, outcomeList:Array<PowerDieFace>) : number {
     // Prototype code for determining how many outcomes meet a target threshold

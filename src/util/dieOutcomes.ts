@@ -1,4 +1,5 @@
-import type { PowerDie, PowerDieFace } from "../types/PowerDie"
+import type { PowerDie } from "../types/PowerDie"
+import { PowerDieFace } from "../types/PowerDieFace"
 
 // const BLACK_DIE : PowerDie = {
 //     sides: [
@@ -29,8 +30,11 @@ let die2:PowerDie = RED_DIE as PowerDie
 
 export default function dieOutcomes ( faceSetList:PowerDieFace[][]) : Array<PowerDieFace> {
 
-    // If no data, return array with single outcome with all values zeroed
+    // SPECIAL CASE: If no data, return array with single outcome with all values zeroed
     if (faceSetList.length === 0) return [{power: 0, potential: 0, dot: 0}]
+
+    // SPECIAL CASE: If only one set of faces, return that
+    if (faceSetList.length === 1) return faceSetList[0]
     
     // Otherwise, determine outcomes
     let outcomeList:Array<PowerDieFace> = []
