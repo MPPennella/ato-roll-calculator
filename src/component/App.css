@@ -1,9 +1,15 @@
 .App {
+  /* padding: 10px; */
+  align-items: center;
   text-align: center;
   background-color: #ebece7;
   color: #010101;
   height: 100vh;
   width: 100vw;
+}
+
+.BoundingBox {
+  padding: 10px;
 }
 
 h1 {

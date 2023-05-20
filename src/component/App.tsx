@@ -142,10 +142,12 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Aeon Trespass Roll Calculator</h1>
-      <ResultDisplayPanel {...resultDisplayProps} />
-      <ConditionSelectPanel {...conditionProps} />
-      <DieSelectPanel {...dieSelectProps} />
+      <div className='BoundingBox'>
+        <h1>Aeon Trespass Roll Calculator</h1>
+        <ResultDisplayPanel {...resultDisplayProps} />
+        <ConditionSelectPanel {...conditionProps} />
+        <DieSelectPanel {...dieSelectProps} />
+      </div>
     </div>
   );
 }
