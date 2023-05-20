@@ -4,14 +4,14 @@ import './DieSelectPanel'
 import DieSelectPanel from './DieSelectPanel';
 import ConditionSelectPanel from './ConditionSelectPanel';
 import ResultDisplayPanel from './ResultDisplayPanel';
-import { PowerDie } from '../types/PowerDie';
+import { DIE_COLORS, PowerDie } from '../types/PowerDie';
 import { PowerDieTracker } from '../types/PowerDieTracker';
 import ActiveDie from './ActiveDie';
-import RED_DIE from "../data/PowerDice.json"
 import dieOutcomes from '../util/dieOutcomes';
 import thresholdCheck from '../util/thresholdCheck';
 import averageResults from '../util/averageResult';
-
+import PowerDiceData from '../data/PowerDiceData.json'
+import { PowerDieFace } from '../types/PowerDieFace';
 
 function App() {
 
@@ -22,7 +22,7 @@ function App() {
   const [breaks, setBreaks] = React.useState(0)
 
   // State to track the various dice and a mutable reference to such
-  const [diceTracker, setDicetracker] = React.useState(Array<PowerDieTracker>)
+  const [diceTracker, setDiceTracker] = React.useState(Array<PowerDieTracker>)
   const diceTrackRef:any = React.useRef()
   diceTrackRef.current = diceTracker
 
@@ -57,37 +57,74 @@ function App() {
     // Guard against performance issues with lots of dice
     if (diceTracker.length>=6) return
 
-    const newKey = genNewKey()
-    const newDie:PowerDie = RED_DIE as PowerDie
-    const newComp = <ActiveDie key={newKey} dieID={newKey} color={color} remove={handleRemoveDie} />
-
-    const newSomething:PowerDieTracker = {
-        id: newKey,
-        die: newDie,
-        activeFaceSet: newDie.faces,
-        component: newComp
+    // Try to find die info in data matching color specified
+    let newDie:PowerDie|undefined = undefined
+    for (const die of PowerDiceData.data as Array<PowerDie> ) {
+      if (die.color == color.toLowerCase()) {
+        newDie = die
+      }
     }
+    
+    // Make sure applicable die data was found, otherwise do not proceed with creating new entry
+    if (newDie != undefined) {
+    
+      const newKey = genNewKey()
 
-    setDicetracker( diceTracker.concat( newSomething) )
+      const activeDieProps = {
+        key: newKey,
+        dieID: newKey,
+        color: color,
+        faceOptions: newDie.faces,
+        remove: handleRemoveDie,
+        upActFace: handleUpdateActiveFaces
+      }
+      const newComp = <ActiveDie {...activeDieProps} />
+
+      const newTracker:PowerDieTracker = {
+          id: newKey,
+          die: newDie,
+          activeFaceSet: newDie.faces,
+          component: newComp
+      }
+
+      setDiceTracker( diceTracker.concat( newTracker) )
+    }
   }
 
 
   // Removes the selected die from the pool, and updates calculations accordingly
   function handleRemoveDie( idToRemove:number ) : void {
     let remaining = diceTrackRef.current.filter( (item:PowerDieTracker) => (item.id!=idToRemove))
-    setDicetracker(remaining)
+    setDiceTracker(remaining)
 
   }
 
-  let dOut = dieOutcomes(diceTracker.map( (e:PowerDieTracker) => {        
-    return e.die.faces
+  // Updates the active faces on a die
+  function handleUpdateActiveFaces( componentId:number, newFaces:Array<PowerDieFace> ) : void {
+    // Search for correct component id
+    // let target:PowerDieTracker
+    // for (const tracker of diceTrackRef.current as Array<PowerDieTracker>) {
+    //   if (tracker.id == componentId) tracker.activeFaceSet = newFaces
+    // }
+
+    // Remap dice objects and update matching ID with new active faces
+    let updatedDiceTracker = diceTrackRef.current.map( (tracker:PowerDieTracker) => {
+      if (tracker.id == componentId) tracker.activeFaceSet = newFaces
+      return tracker
+    })
+
+    setDiceTracker(updatedDiceTracker)
+  }
+
+  let outcomes = dieOutcomes(diceTracker.map( (e:PowerDieTracker) => {        
+    return e.activeFaceSet
   }))
   console.log("DIE OUTCOMES CALCED")
 
   // Construct props items for various sub-components
   const resultDisplayProps = {
-    successPcnt: thresholdCheck(atThreshold, breaks, dOut),
-    average: averageResults(dOut, breaks)
+    successPcnt: thresholdCheck(atThreshold, breaks, outcomes),
+    average: averageResults(outcomes, breaks)
   }
 
   const conditionProps = {

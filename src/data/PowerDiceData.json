@@ -1,0 +1,70 @@
+{
+    "data": [
+        {
+            "color": "red",
+            "faces": [
+                {
+                    "power": 0,
+                    "potential": 0,
+                    "dot": 1
+                },
+                {
+                    "power": 0,
+                    "potential": 1,
+                    "dot": 0
+                },
+                {
+                    "power": 1,
+                    "potential": 0,
+                    "dot": 0
+                },
+                {
+                    "power": 1,
+                    "potential": 1,
+                    "dot": 0
+                },
+                {
+                    "power": 1,
+                    "potential": 1,
+                    "dot": 0
+                },
+                {
+                    "power": 2,
+                    "potential": 0,
+                    "dot": 1
+                }
+            ]
+        },
+        {
+            "color": "black",
+            "faces": [
+                {
+                    "power": 0,
+                    "potential": 1,
+                    "dot": 1
+                },
+                {
+                    "power": 1,
+                    "potential": 1,
+                    "dot": 0
+                },
+                {
+                    "power": 2,
+                    "potential": 0,
+                    "dot": 1
+                },
+                
+                {
+                    "power": 2,
+                    "potential": 1,
+                    "dot": 0
+                },
+                {
+                    "power": 2,
+                    "potential": 2,
+                    "dot": 0
+                }
+            ]
+        }
+    ]
+}

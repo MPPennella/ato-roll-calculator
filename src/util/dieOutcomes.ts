@@ -1,4 +1,3 @@
-import type { PowerDie } from "../types/PowerDie"
 import { PowerDieFace } from "../types/PowerDieFace"
 
 // const BLACK_DIE : PowerDie = {
@@ -22,11 +21,6 @@ import { PowerDieFace } from "../types/PowerDieFace"
 //         [3,2,1],
 //     ]
 // }
-import RED_DIE from "../data/PowerDice.json"
-
-// Prototype code for simulating outcomes of multiple dice
-let die1:PowerDie = RED_DIE as PowerDie
-let die2:PowerDie = RED_DIE as PowerDie
 
 export default function dieOutcomes ( faceSetList:PowerDieFace[][]) : Array<PowerDieFace> {
 
