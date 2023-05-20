@@ -1,7 +1,15 @@
+.DieWrapper {
+    display: grid;
+    padding: 8px;
+}
+
 .DieBox {
     display:grid;
-    height: 100px;
-    width: 100px;
+    height: 80px;
+    width: 80px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 5px;
     background-color: #a01925;
 }
 
@@ -18,11 +26,6 @@
     background-color: white;
 }
 
-.DieWrapper {
-    display: flex;
-    padding: 30px;
-}
-
 .RemoveButton {
     height: 24px;
     width: 24px;
@@ -30,4 +33,11 @@
     vertical-align: middle;
     justify-self: right;
     margin: 5px;
+    border: none;
+    background-color: transparent;
+    font-weight: 900;
+}
+
+.BlackDie > .RemoveButton {
+    color: #a01925;
 }

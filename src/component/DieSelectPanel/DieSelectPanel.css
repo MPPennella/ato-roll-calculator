@@ -1,3 +1,4 @@
+
 .DieSelectPanel {
     margin: 10px;
     border: 2px solid #010101;
@@ -5,9 +6,22 @@
     min-height: 200px;
 }
 
-.DiePanel {
-    display: flex;
+.DieCreatorPanel {
     width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.DieCreatorPanel > span {
+    margin-right: 5px;
+}
+
+.DiePanel {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     /* margin: 10px;
     border: 2px solid #010101; */
 }

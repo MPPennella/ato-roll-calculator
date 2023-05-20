@@ -1,5 +1,6 @@
 import type {PowerDieFace} from "../types/PowerDieFace"
 
+// Returns the percentage of outcomes that meet or exceed the AT Threshold, factoring in the given number of breaks
 export default function thresholdCheck ( thresholdValue:number, breakValue:number, outcomeList:Array<PowerDieFace>) : number {
     // Prototype code for determining how many outcomes meet a target threshold
 
@@ -16,8 +17,6 @@ export default function thresholdCheck ( thresholdValue:number, breakValue:numbe
     }, initVal)
 
     let successPcnt = 100 * numSuccesses/outcomeList.length
-
-    console.log(successPcnt)
 
     return successPcnt
 }

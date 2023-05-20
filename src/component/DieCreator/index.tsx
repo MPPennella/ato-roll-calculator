@@ -8,7 +8,7 @@ function DieCreator ( {onClick, color} : {onClick:Function, color:string}) {
 
     return (
         <div>
-            <button onClick={addDie} >Add {color} Die</button>
+            <button className='DieCreateButton' onClick={addDie} >{color} Die</button>
         </div>
     )
 }

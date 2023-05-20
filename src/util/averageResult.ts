@@ -17,7 +17,5 @@ export default function averageResult ( outcomeList:Array<PowerDieFace>, breakVa
 
     let average:number = totalPower/numTerms
 
-    console.log(average)
-
     return average
 }

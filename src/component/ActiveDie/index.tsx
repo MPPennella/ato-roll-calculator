@@ -34,13 +34,11 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
         let newActiveFaceSet = faceOptions
         
         // Check if random face option selected, if so give all options
-        if (optionId == "rand") newActiveFaceSet = faceOptions
+        if (optionId === "rand") newActiveFaceSet = faceOptions
         // Else get face matching selected ID
         else {
             for (const [k,v] of faceMap) {
-                console.log(`Key ${k}, Val ${v}`)
-                if (k == optionId) {newActiveFaceSet = [v]; break}
-
+                if (k === optionId) {newActiveFaceSet = [v]; break}
             }
         }
 
@@ -76,8 +74,8 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
     return (
         <div className='DieWrapper'>
             <div className={'DieBox '+colorTag}>
-                {color}
                 <button onClick={removeDie} className='RemoveButton'>X</button>
+                {color}
             </div>
             {renderFaceOptions()}
         </div>

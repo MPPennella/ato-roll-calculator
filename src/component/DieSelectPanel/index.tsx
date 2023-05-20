@@ -12,13 +12,14 @@ function DieSelectPanel ( {diceComponents, addDie} : {diceComponents:Array<React
     return (
         <div className='DieSelectPanel'>
             <h2>Dice</h2>
-            <div>
+            <div className='DieCreatorPanel'>
+                <span>Add Die:</span>
                 <DieCreator onClick={addDie} color="Red" />
                 <DieCreator onClick={addDie} color="Black" />
                 <DieCreator onClick={addDie} color="White" />
             </div>
             {renderDice(diceComponents) }
-            Dice Total: {diceComponents.length}
+            {/* Dice Total: {diceComponents.length} */}
         </div>
     )
 }

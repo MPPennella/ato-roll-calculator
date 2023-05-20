@@ -6,8 +6,8 @@ function ResultDisplayPanel ( {successPcnt, average} : {successPcnt:number, aver
     return (
         <div className='ResultDisplayPanel'>
             <h2>Result</h2>
-            <p>Chance of success: {successPcnt.toFixed(3)}%</p>
-            <p>Average: {average.toFixed(3)}</p>
+            <div>Chance of success: {successPcnt.toFixed(3)}%</div>
+            <div>Average: {average.toFixed(3)}</div>
         </div>
     )
 }

@@ -121,7 +121,6 @@ function App() {
   let outcomes = dieOutcomes(diceTracker.map( (e:PowerDieTracker) => {        
     return e.activeFaceSet
   }))
-  console.log("DIE OUTCOMES CALCED")
 
   // Construct props items for various sub-components
   const resultDisplayProps = {
