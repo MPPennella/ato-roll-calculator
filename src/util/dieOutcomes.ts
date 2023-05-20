@@ -1,27 +1,5 @@
 import { PowerDieFace } from "../types/PowerDieFace"
 
-// const BLACK_DIE : PowerDie = {
-//     sides: [
-//         [0,1,1],
-//         [1,1,0],
-//         [2,0,1],
-//         // [0,0,0], //unknown values for this side
-//         [2,1,0],
-//         [2,2,0],
-//     ]
-// }
-
-// const WHITE_DIE : PowerDie = {
-//     sides: [
-//         [1,2,1],
-//         // [0,0,0], //unknown values for this side
-//         // [0,0,0], //unknown values for this side
-//         // [0,0,0], //unknown values for this side
-//         [1,3,0],
-//         [3,2,1],
-//     ]
-// }
-
 export default function dieOutcomes ( faceSetList:PowerDieFace[][]) : Array<PowerDieFace> {
 
     // SPECIAL CASE: If no data, return array with single outcome with all values zeroed
@@ -31,17 +9,20 @@ export default function dieOutcomes ( faceSetList:PowerDieFace[][]) : Array<Powe
     if (faceSetList.length === 1) return faceSetList[0]
     
     // Otherwise, determine outcomes
+    // Array for storing outcomes
     let outcomeList:Array<PowerDieFace> = []
     
     // Pull last element off list
     let currFaceSet = faceSetList.pop()
 
-    // Use recursion to get outcomes from remaining dice
-    let otherOutcomes:Array<PowerDieFace> = [{power: 0, potential: 0, dot: 0}]
-    if (faceSetList.length>0) otherOutcomes = dieOutcomes(faceSetList)    
-
-    // Iterate over the current set of faces to add values to those of other outcomes
     if (currFaceSet !== undefined){
+        // Default is array with single zero-equivalent PowerDieFace object
+        let otherOutcomes:Array<PowerDieFace> = [{power: 0, potential: 0, dot: 0}]
+
+        // Use recursion to get outcomes from remaining dice
+        if (faceSetList.length>0) otherOutcomes = dieOutcomes(faceSetList)    
+
+        // Iterate over the current set of faces to add values to those of other outcomes
         outcomeList = currFaceSet.map( (currFace:PowerDieFace) => {
 
             // Add values of current face to values of all other possible Face Totals

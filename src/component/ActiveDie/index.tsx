@@ -75,7 +75,7 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
         <div className='DieWrapper'>
             <div className={'DieBox '+colorTag}>
                 <button onClick={removeDie} className='RemoveButton'>X</button>
-                {color}
+                {/* {color} */}
             </div>
             {renderFaceOptions()}
         </div>

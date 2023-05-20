@@ -36,7 +36,6 @@ function App() {
   function genNewKey():number {
     let newKey = latestKey+1
     setLatestKey(newKey)
-    console.log(`Key: ${newKey}`)
     return newKey
   }
 
@@ -106,14 +105,10 @@ function App() {
 
   // Updates the active faces on a die
   function handleUpdateActiveFaces( componentId:number, newFaces:Array<PowerDieFace> ) : void {
-    // Search for correct component id
-    // let target:PowerDieTracker
-    // for (const tracker of diceTrackRef.current as Array<PowerDieTracker>) {
-    //   if (tracker.id == componentId) tracker.activeFaceSet = newFaces
-    // }
-
+    
     // Remap dice objects and update matching ID with new active faces
     let updatedDiceTracker = diceTrackRef.current.map( (tracker:PowerDieTracker) => {
+      // Search for correct component id and update face set
       if (tracker.id == componentId) tracker.activeFaceSet = newFaces
       return tracker
     })
@@ -121,8 +116,11 @@ function App() {
     setDiceTracker(updatedDiceTracker)
   }
 
-  let outcomes = dieOutcomes(diceTracker.map( (e:PowerDieTracker) => {        
-    return e.activeFaceSet
+  //////////////////////////////////////////
+  // This is being called too much and causing performance problems with many random dice out due to complexity
+  //////////////////////////////////////////
+  let outcomes = dieOutcomes(diceTracker.map( (tracker:PowerDieTracker) => {        
+    return tracker.activeFaceSet
   }))
 
   // Construct props items for various sub-components
