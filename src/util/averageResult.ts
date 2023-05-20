@@ -1,10 +1,11 @@
 import type {PowerDieFace} from "../types/PowerDieFace"
 
-export default function averageResults ( outcomeList:Array<PowerDieFace>, breakValue:number ) : number|undefined {
+// Finds the average Power generated from the list of possible Face totals while factoring in the number of Breaks available
+export default function averageResult ( outcomeList:Array<PowerDieFace>, breakValue:number ) : number {
     const numTerms:number = outcomeList.length
 
-    // Average of zero terms is undefined
-    if (numTerms === 0 ) return undefined
+    // Average of zero terms will be set as zero
+    if (numTerms === 0 ) return 0
 
     let initVal = 0 // Initial value
     let totalPower:number = outcomeList.reduce( (totalPower:number, currentFace:PowerDieFace) => {

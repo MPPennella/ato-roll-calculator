@@ -12,7 +12,7 @@ import { PowerDieTracker } from '../types/PowerDieTracker';
 // Data and processing utilities
 import dieOutcomes from '../util/dieOutcomes';
 import thresholdCheck from '../util/thresholdCheck';
-import averageResults from '../util/averageResult';
+import averageResult from '../util/averageResult';
 import PowerDiceData from '../data/PowerDiceData.json'
 
 function App() {
@@ -126,7 +126,7 @@ function App() {
   // Construct props items for various sub-components
   const resultDisplayProps = {
     successPcnt: thresholdCheck(atThreshold, breaks, outcomes),
-    average: averageResults(outcomes, breaks)
+    average: averageResult(outcomes, breaks)
   }
 
   const conditionProps = {
