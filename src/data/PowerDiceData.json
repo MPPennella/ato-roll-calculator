@@ -49,6 +49,11 @@
                     "dot": 0
                 },
                 {
+                    "power": 1,
+                    "potential": 1,
+                    "dot": 0
+                },
+                {
                     "power": 2,
                     "potential": 0,
                     "dot": 1
@@ -62,7 +67,43 @@
                 {
                     "power": 2,
                     "potential": 2,
+                    "dot": 1
+                }
+            ]
+        },
+        {
+            "color": "white",
+            "faces": [
+                {
+                    "power": 1,
+                    "potential": 1,
+                    "dot": 1
+                },
+                {
+                    "power": 1,
+                    "potential": 2,
+                    "dot": 1
+                },
+                {
+                    "power": 1,
+                    "potential": 3,
                     "dot": 0
+                },
+                {
+                    "power": 2,
+                    "potential": 1,
+                    "dot": 1
+                },
+                
+                {
+                    "power": 2,
+                    "potential": 3,
+                    "dot": 0
+                },
+                {
+                    "power": 3,
+                    "potential": 2,
+                    "dot": 1
                 }
             ]
         }

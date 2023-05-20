@@ -55,20 +55,23 @@ function App() {
 
   // Adds a new die to the pool, handling input of which type (color) to add
   function handleAddNewDie( color:string ) : void {
-    // Don't add dice if already 6 in pool
+    // Maximum number of dice to render
+    const DICE_LIMIT = 8;
+    
+    // Don't add dice if already at limit in pool
     // Guard against performance issues with lots of dice
-    if (diceTracker.length>=6) return
+    if (diceTracker.length>=DICE_LIMIT) return
 
     // Try to find die info in data matching color specified
     let newDie:PowerDie|undefined = undefined
     for (const die of PowerDiceData.data as Array<PowerDie> ) {
-      if (die.color == color.toLowerCase()) {
+      if (die.color === color.toLowerCase()) {
         newDie = die
       }
     }
     
     // Make sure applicable die data was found, otherwise do not proceed with creating new entry
-    if (newDie != undefined) {
+    if (newDie !== undefined) {
     
       const newKey = genNewKey()
 
