@@ -1,13 +1,6 @@
 import React from 'react'
 import './DieSelectPanel.css'
-import './DieCreator'
-import DieCreator from './DieCreator'
-import dieOutcomes from '../util/dieOutcomes'
-import thresholdCheck from '../util/thresholdCheck'
-import averageResults from '../util/averageResult'
-import { PowerDieTracker } from '../types/PowerDieTracker'
-
-
+import DieCreator from '../DieCreator'
 
 function DieSelectPanel ( {diceComponents, addDie} : {diceComponents:Array<React.JSX.Element>, addDie:Function } ) {
 

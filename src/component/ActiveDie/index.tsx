@@ -1,5 +1,5 @@
 import React from 'react'
-import { PowerDieFace } from '../types/PowerDieFace'
+import { PowerDieFace } from '../../types/PowerDieFace'
 import './ActiveDie.css'
 
 function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:number, color:string, faceOptions:Array<PowerDieFace>, remove:Function, upActFace:Function}) {
