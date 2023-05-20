@@ -1,11 +1,13 @@
 import React from 'react'
 import './ActiveDie.css'
 
-function ActiveDie () {
+function ActiveDie ({remove, color} : {remove:React.MouseEventHandler<HTMLButtonElement>, color:string}) {
+    
     return (
         <div className='DieWrapper'>
             <div className='DieBox'>
-                <button className='RemoveButton'>X</button>
+                {/* {color} */}
+                <button onClick={remove} className='RemoveButton'>X</button>
             </div>
         </div>
     )

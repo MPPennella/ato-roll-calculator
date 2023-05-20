@@ -1,14 +1,14 @@
 import React from 'react'
 import './DieCreator.css'
 
-function DieCreator ( {onClick}:any) {
-    // function handleClick() {
-    //     alert('CLICK')
-    // }
+function DieCreator ( {onClick, color} : {onClick:Function, color:string}) {
+    function addDie():void {
+        onClick(color)
+    }
 
     return (
         <div>
-            <button onClick={onClick} >Add Die</button>
+            <button onClick={addDie} >Add {color} Die</button>
         </div>
     )
 }

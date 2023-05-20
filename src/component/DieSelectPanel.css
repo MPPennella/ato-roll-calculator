@@ -11,3 +11,7 @@
     /* margin: 10px;
     border: 2px solid #010101; */
 }
+
+.DiePanelEmpty {
+    min-height: 160px;
+}
