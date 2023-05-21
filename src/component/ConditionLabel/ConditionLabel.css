@@ -1,0 +1,16 @@
+.ConditionLabelContainer {
+    display: flex;
+    justify-content: center;
+}
+
+.ConditionLabel {
+    width: 250px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: right;
+}
+
+input {
+    width: 30px;
+    margin-left: 15px;
+}
