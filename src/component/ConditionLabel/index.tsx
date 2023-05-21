@@ -16,8 +16,10 @@ function ConditionLabel ({children, boxValue, updateValue} : {children:string, b
                 <input 
                     type="number" 
                     value={boxValue} 
-                    onChange={ (e) => updateValue( enforcePositive(Math.floor(+e.target.value)) )}
+                    onChange={ (e) => updateValue( enforcePositive( Math.floor(+e.target.value))) }
                 />
+                <button onClick={ (e) => updateValue( enforcePositive( boxValue+1 )) } >+</button>
+                <button onClick={ (e) => updateValue( enforcePositive( boxValue-1 )) } >-</button>
             </label>
         </div>
     )
