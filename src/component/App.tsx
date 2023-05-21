@@ -28,6 +28,22 @@ function App() {
   const diceTrackRef:any = React.useRef()
   diceTrackRef.current = diceTracker
 
+  // Holds the calculated outcomes for reference
+  const [outcomes, setOutcomes] = React.useState(Array<PowerDieFace>)
+
+  // Updates the states related to tracked dice objects
+  function updateDice( newDiceTracker:Array<PowerDieTracker> ) : void {
+    // Overall die tracker
+    setDiceTracker(newDiceTracker)
+
+    // List of face outcomes generated from active faces of dice
+    setOutcomes(
+      dieOutcomes(
+        newDiceTracker.map( (tracker:PowerDieTracker) => tracker.activeFaceSet)
+      )
+    )
+  }
+
   // For generating keys for dynamically generated elements
   const [latestKey, setLatestKey] = React.useState(0)
 
@@ -91,7 +107,9 @@ function App() {
           component: newComp
       }
 
-      setDiceTracker( diceTracker.concat( newTracker) )
+      const updatedDiceTracker = diceTracker.concat( newTracker)
+      updateDice( updatedDiceTracker )
+
     }
   }
 
@@ -99,8 +117,7 @@ function App() {
   // Removes the selected die from the pool, and updates calculations accordingly
   function handleRemoveDie( idToRemove:number ) : void {
     let remaining = diceTrackRef.current.filter( (item:PowerDieTracker) => (item.id!=idToRemove))
-    setDiceTracker(remaining)
-
+    updateDice(remaining)
   }
 
   // Updates the active faces on a die
@@ -113,16 +130,10 @@ function App() {
       return tracker
     })
 
-    setDiceTracker(updatedDiceTracker)
+    updateDice(updatedDiceTracker)
   }
 
-  //////////////////////////////////////////
-  // This is being called too much and causing performance problems with many random dice out due to complexity
-  //////////////////////////////////////////
-  let outcomes = dieOutcomes(diceTracker.map( (tracker:PowerDieTracker) => {        
-    return tracker.activeFaceSet
-  }))
-
+  
   // Construct props items for various sub-components
   const resultDisplayProps = {
     successPcnt: thresholdCheck(atThreshold, breaks, outcomes),
