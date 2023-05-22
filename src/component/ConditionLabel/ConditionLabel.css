@@ -1,16 +1,29 @@
 .ConditionLabelContainer {
     display: flex;
-    justify-content: center;
+    justify-content: right;
 }
 
 .ConditionLabel {
-    width: 250px;
+    width: max-content;
     display: flex;
     flex-wrap: wrap;
     justify-content: right;
 }
 
+.MobileHelperButton {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
 input {
     width: 30px;
-    margin-left: 15px;
+    margin-left: 10px;
+    margin-right: 3px;
+}
+
+@media (any-pointer: coarse) {
+    .ConditionLabel {
+        /* width: max-content; */
+        /* margin:auto; */
+    }
 }

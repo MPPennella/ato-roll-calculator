@@ -11,6 +11,8 @@
     margin-right: auto;
     margin-bottom: 5px;
     background-color: #a01925;
+    border-radius: 10px;
+    border: 1px solid black;
 }
 
 .RedDie {
@@ -19,7 +21,7 @@
 
 .BlackDie {
     background-color: black;
-    color: white
+    color: white;
 }
 
 .WhiteDie {
@@ -40,4 +42,35 @@
 
 .BlackDie > .RemoveButton {
     color: #a01925;
+}
+
+@media (prefers-color-scheme: dark) {
+    .RedDie {
+        background-color: #a01925;
+        border: 1px solid #882222;
+    }
+    
+    .BlackDie {
+        border: 1px solid #333;
+        background-color: black;
+        color: white
+    }
+    
+    .WhiteDie {
+        background-color: white;
+        
+        border: 1px solid #aaa;
+    }
+    
+    .RedDie > .RemoveButton {
+        color: white
+    }
+
+    .BlackDie > .RemoveButton {
+        color: white;
+    }
+
+    .WhiteDie > .RemoveButton {
+        color: black
+    }
 }

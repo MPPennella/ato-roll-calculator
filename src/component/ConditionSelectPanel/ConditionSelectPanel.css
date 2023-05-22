@@ -6,3 +6,8 @@
     border: 2px solid #010101;
     padding: 5px;
 }
+
+.ConditionLabelBoundBox {
+    width: min-content;
+    margin: auto;
+}

@@ -1,5 +1,4 @@
 .App {
-  /* padding: 10px; */
   align-items: center;
   text-align: center;
   background-color: #ebece7;
@@ -21,34 +20,26 @@ h1 {
 h2 {
   font-size: 14pt;
   margin: 0px;
+  margin-bottom: 5px;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (prefers-color-scheme: dark) {
+  .App {
+    background-color: #222727;
+    color: #ebece7;
   }
-  to {
-    transform: rotate(360deg);
+
+  h1 {
+    color: #db8834
+  }
+
+ input, select, option {
+    background-color: #444444;
+    color: #ebece7
+  }
+
+  button {
+    background-color: #666666;
+    color: #ebece7;
   }
 }

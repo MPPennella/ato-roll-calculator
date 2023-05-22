@@ -7,8 +7,10 @@ function ConditionSelectPanel ( {atThreshold, breaks, upAT, upBr} : {atThreshold
     return (
         <div className='ConditionSelectPanel'>
             <h2>Setup</h2>
-            <ConditionLabel boxValue={atThreshold} updateValue={upAT} >Aeon Trespass Threshold:</ConditionLabel>
-            <ConditionLabel boxValue={breaks} updateValue={upBr} >Break Tokens:</ConditionLabel>
+            <div className='ConditionLabelBoundBox'>
+                <ConditionLabel boxValue={atThreshold} updateValue={upAT} >Aeon Trespass Threshold:</ConditionLabel>
+                <ConditionLabel boxValue={breaks} updateValue={upBr} >Break Tokens:</ConditionLabel>
+            </div>
         </div>
     )
 }
