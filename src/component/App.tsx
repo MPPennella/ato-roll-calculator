@@ -29,7 +29,7 @@ function App() {
   diceTrackRef.current = diceTracker
 
   // Holds the calculated outcomes for reference
-  const [outcomes, setOutcomes] = React.useState(Array<PowerDieFace>)
+  const [outcomes, setOutcomes] = React.useState([{power:0, potential:0, dot:0}])
 
   // Updates the states related to tracked dice objects
   function updateDice( newDiceTracker:Array<PowerDieTracker> ) : void {
