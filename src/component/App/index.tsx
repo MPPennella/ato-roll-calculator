@@ -1,19 +1,19 @@
 import React from 'react';
 import './App.css';
 // Components
-import ActiveDie from './ActiveDie';
-import ConditionSelectPanel from './ConditionSelectPanel';
-import DieSelectPanel from './DieSelectPanel';
-import ResultDisplayPanel from './ResultDisplayPanel';
+import ActiveDie from '../ActiveDie';
+import ConditionSelectPanel from '../ConditionSelectPanel';
+import DieSelectPanel from '../DieSelectPanel';
+import ResultDisplayPanel from '../ResultDisplayPanel';
 // Types
-import { PowerDie } from '../types/PowerDie';
-import { PowerDieFace } from '../types/PowerDieFace';
-import { PowerDieTracker } from '../types/PowerDieTracker';
+import { PowerDie } from '../../types/PowerDie';
+import { PowerDieFace } from '../../types/PowerDieFace';
+import { PowerDieTracker } from '../../types/PowerDieTracker';
 // Data and processing utilities
-import dieOutcomes from '../util/dieOutcomes';
-import thresholdCheck from '../util/thresholdCheck';
-import averageResult from '../util/averageResult';
-import PowerDiceData from '../data/PowerDiceData.json'
+import dieOutcomes from '../../util/dieOutcomes';
+import thresholdCheck from '../../util/thresholdCheck';
+import averageResult from '../../util/averageResult';
+import PowerDiceData from '../../data/PowerDiceData.json'
 
 function App() {
 
