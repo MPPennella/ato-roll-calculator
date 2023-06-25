@@ -21,7 +21,7 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
         default: colorTag = ""; break;
     }
 
-    // Deletes this die
+    // Deletes this die by passing ID to controlling function
     function removeDie():void {
         remove(dieID)
     }   
@@ -31,12 +31,11 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
     function updateSelected(e:any) {
         const optionId = e.target.value
         
+        // By default treat as random selected
         let newActiveFaceSet = faceOptions
         
-        // Check if random face option selected, if so give all options
-        if (optionId === "rand") newActiveFaceSet = faceOptions
-        // Else get face matching selected ID
-        else {
+        // Check if non-random face option selected, if so get face matching selected ID
+        if (optionId !== "rand") {
             for (const [k,v] of faceMap) {
                 if (k === optionId) {newActiveFaceSet = [v]; break}
             }
@@ -53,7 +52,8 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
         let faceOptionComponents:Array<React.JSX.Element> = [<option key="r" value="rand">Random</option>]
 
         // Generate other needed face options
-        // Currently generates duplicate faces if the option is on multiple sides of a die, update in future to streamline view
+        // Currently generates duplicate faces if the option is on multiple sides of a die
+        // TODO: update in future to streamline view
         for (let i=0; i<faceOptions.length; i++) {
             let curr = faceOptions[i]
             faceOptionComponents.push(
@@ -66,9 +66,9 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
         return <select
             value={activeFace}
             onChange={updateSelected}
-        >
-            {faceOptionComponents}
-        </select>
+        
+            children={faceOptionComponents}
+        />
     }
     
     return (
