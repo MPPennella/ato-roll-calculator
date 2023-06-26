@@ -72,10 +72,11 @@ function App() {
   function handleAddNewDie( color:string ) : void {
     // Maximum number of dice to render
     const DICE_LIMIT = 8;
+    const diceList = diceTrackRef.current
     
     // Don't add dice if already at limit in pool
     // Guard against performance issues with lots of dice
-    if (diceTracker.length>=DICE_LIMIT) return
+    if (diceList.length>=DICE_LIMIT) return
 
     // Try to find die info in data matching color specified
     let newDie:PowerDie|undefined = undefined
@@ -94,6 +95,7 @@ function App() {
         key: newKey,
         dieID: newKey,
         color: color,
+        highlight: false,
         faceOptions: newDie.faces,
         remove: handleRemoveDie,
         upActFace: handleUpdateActiveFaces
@@ -107,16 +109,42 @@ function App() {
           component: newComp
       }
 
-      const updatedDiceTracker = diceTracker.concat( newTracker)
+      const updatedDiceTracker = diceList.concat( newTracker)
       updateDice( updatedDiceTracker )
 
     }
   }
 
+  // Changes highlighting of dice objects - highlights specified IDs, de-highlights any others
+  function handleUpdateDieHighlights (dieIDs:Array<number>) : void {
+    const updatedDiceTracker = diceTrackRef.current
+
+    // Check each tracked die to find matches
+    for (const tracker of updatedDiceTracker) {
+      // No highlight unless specified by ID in array
+      let highlightStatus = false
+
+      // Check if ID of current die matches a targeted ID
+      for (const targetID of dieIDs) {
+        if (tracker.id === targetID) {
+          highlightStatus = true
+          break
+        }
+      }
+
+      // Only need to change if different status from before
+      if (tracker.component.props.highlight!== highlightStatus) {
+        tracker.component = <ActiveDie  {...tracker.component.props} highlight={highlightStatus} />
+      }
+    }
+
+    updateDice( updatedDiceTracker )
+  }
+
 
   // Removes the selected die from the pool, and updates calculations accordingly
   function handleRemoveDie( idToRemove:number ) : void {
-    let remaining = diceTrackRef.current.filter( (item:PowerDieTracker) => (item.id!=idToRemove))
+    const remaining = diceTrackRef.current.filter( (item:PowerDieTracker) => (item.id !== idToRemove))
     updateDice(remaining)
   }
 
@@ -124,9 +152,9 @@ function App() {
   function handleUpdateActiveFaces( componentId:number, newFaces:Array<PowerDieFace> ) : void {
     
     // Remap dice objects and update matching ID with new active faces
-    let updatedDiceTracker = diceTrackRef.current.map( (tracker:PowerDieTracker) => {
+    const updatedDiceTracker = diceTrackRef.current.map( (tracker:PowerDieTracker) => {
       // Search for correct component id and update face set
-      if (tracker.id == componentId) tracker.activeFaceSet = newFaces
+      if (tracker.id === componentId) tracker.activeFaceSet = newFaces
       return tracker
     })
 
@@ -149,7 +177,8 @@ function App() {
 
   const dieSelectProps = {
     diceComponents: diceTracker.map( (element) => element.component),
-    addDie: handleAddNewDie
+    addDie: handleAddNewDie,
+    updateHighlights: handleUpdateDieHighlights
   }
 
   return (

@@ -3,7 +3,7 @@ import './DieSelectPanel.css'
 import DieCreator from '../DieCreator'
 import enforcePositive from '../../util/enforcePositive'
 
-function DieSelectPanel ( {diceComponents, addDie} : {diceComponents:Array<React.JSX.Element>, addDie:Function } ) {
+function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComponents:Array<React.JSX.Element>, addDie:Function, updateHighlights:Function } ) {
 
     // State tracker for number of rerolls, may be hoisted later
     const [rerolls, setRerolls] = React.useState(0)
@@ -19,6 +19,8 @@ function DieSelectPanel ( {diceComponents, addDie} : {diceComponents:Array<React
         // Use die information and number of rerolls to find best dice combination to reroll and chance of success
 
         // Update view with results
+        let testOutput = [1,4,5]
+        updateHighlights( testOutput )
     }
 
     return (

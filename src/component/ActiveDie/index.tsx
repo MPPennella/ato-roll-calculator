@@ -2,7 +2,7 @@ import React from 'react'
 import { PowerDieFace } from '../../types/PowerDieFace'
 import './ActiveDie.css'
 
-function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:number, color:string, faceOptions:Array<PowerDieFace>, remove:Function, upActFace:Function}) {
+function ActiveDie ({dieID, color, highlight=false, faceOptions, remove, upActFace } : {dieID:number, color:string, highlight?:Boolean, faceOptions:Array<PowerDieFace>, remove:Function, upActFace:Function}) {
     // State to track current face selection
     const [activeFace, setActiveFace] = React.useState("static")
 
@@ -20,6 +20,10 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
         case "White": colorTag = "WhiteDie"; break;
         default: colorTag = ""; break;
     }
+
+    // Add Highlighting if supposed to be active
+    let highlightTag:string = ""
+    if (highlight === true) highlightTag = "HighlightedDie"
 
     // Deletes this die by passing ID to controlling function
     function removeDie():void {
@@ -72,7 +76,7 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
     
     return (
         <div className='DieWrapper'>
-            <div className={'DieBox '+colorTag}>
+            <div className={'DieBox ' + colorTag + ' ' + highlightTag}>
                 <button onClick={removeDie} className='RemoveButton'>X</button>
                 {/* {color} */}
             </div>
