@@ -66,7 +66,6 @@ function ActiveDie ({dieID, color, faceOptions, remove, upActFace } : {dieID:num
         return <select
             value={activeFace}
             onChange={updateSelected}
-        
             children={faceOptionComponents}
         />
     }
