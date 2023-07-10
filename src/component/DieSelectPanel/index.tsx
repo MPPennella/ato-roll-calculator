@@ -2,6 +2,7 @@ import React from 'react'
 import './DieSelectPanel.css'
 import DieCreator from '../DieCreator'
 import enforcePositive from '../../util/enforcePositive'
+import findBestRerolls from '../../util/findBestRerolls'
 
 function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComponents:Array<React.JSX.Element>, addDie:Function, updateHighlights:Function } ) {
 
@@ -17,10 +18,45 @@ function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComp
     function findBestRerollandUpdate () {
         console.log("FIND REROLL CALLED")
         // Use die information and number of rerolls to find best dice combination to reroll and chance of success
+        const TEST_INPUT = [
+            {
+                id:1, 
+                color:"red", 
+                face: { power:1, potential:0, dot:1 }
+            },
+            {
+                id:2, 
+                color:"black", 
+                face: { power:2, potential:1, dot:0 }
+            },
+            {
+                id: 3,
+                color: "red",
+                face: { power: 1, potential: 1, dot: 0 }
+            },
+            {
+                id: 4,
+                color: "red",
+                face: { power: 2, potential: 0, dot: 0 }
+            },
+            {
+                id: 5,
+                color: "black",
+                face: { power: 0, potential: 1, dot: 0 }
+            }
+            ,{
+                id: 6,
+                color: "red",
+                face: { power: 1, potential: 1, dot: 0 }
+            }
+        ]
+
+        const bestRerolls = findBestRerolls( 11, 3, 3, TEST_INPUT)
+        console.log("BEST REROLLS:")
+        console.log(bestRerolls)
 
         // Update view with results
-        let testOutput = [1,4,5]
-        updateHighlights( testOutput )
+        updateHighlights( bestRerolls )
     }
 
     return (

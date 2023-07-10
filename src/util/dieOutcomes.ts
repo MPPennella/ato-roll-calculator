@@ -1,5 +1,6 @@
 import { PowerDieFace } from "../types/PowerDieFace"
 
+// Creates a list of all possible outcome totals and returns that as an Array of (using PowerDieFace to represent each total)
 export default function dieOutcomes ( faceSetList:PowerDieFace[][]) : Array<PowerDieFace> {
 
     // SPECIAL CASE: If no data, return array with single outcome with all values zeroed
