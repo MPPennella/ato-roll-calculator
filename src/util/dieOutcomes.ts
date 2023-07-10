@@ -6,7 +6,7 @@ export default function dieOutcomes ( faceSetList:PowerDieFace[][]) : Array<Powe
     // SPECIAL CASE: If no data, return array with single outcome with all values zeroed
     if (faceSetList.length === 0) return [{power: 0, potential: 0, dot: 0}]
 
-    // SPECIAL CASE: If only one set of faces, return that
+    // SPECIAL CASE: If only one set of faces, return that, as each face is one of the outcome totals
     if (faceSetList.length === 1) return faceSetList[0]
     
     // Otherwise, determine outcomes

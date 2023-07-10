@@ -15,11 +15,33 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
     })
 }
 
+// Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, rerolls available, and what faces were rolled on the dice
 export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : Array<number> {
     const numDice = diceInfo.length
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
     if (numDice === 0 || rerolls === 0) return []
+
+    // Otherwise call recursive function to calculate best reroll targets
+    return findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo ).ids
+}
+
+// Recursive function to find results
+function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : {success: number, ids: Array<number>} {
+    // If no rerolls, just find chance of success as-is and return with no reroll targets
+    if ( rerolls === 0 ) {
+        
+        const dieFaces = diceInfo.map(die => [die.face])
+        const success = thresholdCheck( thresholdValue, breakValue, dieOutcomes(dieFaces))
+        console.log("N")
+        console.log(success)
+        return {
+            success: success,
+            ids:[]
+        }
+    }
+
+    const numDice = diceInfo.length
 
     // If more rerolls than dice, set rerolls to number of dice
     if ( rerolls > numDice ) rerolls = numDice
@@ -86,8 +108,8 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
         console.log("BLACK FACES")
         console.log(blackFaceSetList)
 
-        // TODO: Implement later, for now treat as no White dice
-        const whiteFaceSetList:Array<PowerDieFace[]> = []
+        // TODO: Implement later, for now treat as no White dice being rerolled
+        const whiteFaceSetList:Array<PowerDieFace[]> = whiteList.map( die => [die.face] )
 
         const input:Array<PowerDieFace[]> = redFaceSetList.concat(blackFaceSetList).concat(whiteFaceSetList)
         const outcomes = dieOutcomes(input)
@@ -113,10 +135,39 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
     // // If more rerolls and dice available, recursively find best rerolls among remaining dice
     // // - Remove the best dice to reroll from the list, then call on remaining list with n-1 rerolls
 
+    // Recursively call with n-1 rerolls available and compare to check if better to reroll fewer dice
+    // NOTE: Prioritizes the recursion result if returns equal chance of success
+    const recurResults = findBestRerollsRecur( thresholdValue, breakValue, rerolls-1, diceInfo)
+    if ( recurResults.success >= bestSuccessChance ) {
+        // Return recursion results if equal or better
+        return recurResults
+    }
+
+    // When not using the recusion result, build final return data
+
+    // Use final results to determine IDs of best dice to reroll
+    let idsToReroll:Array<number> = []
+
+    // Add Red dice ids starting from bottom of list
+    for ( let i=0; i<bestSet.r; i++ ) {
+        idsToReroll.push( redList[i].id )
+    }
+
+    // Add Black dice ids starting from bottom of list
+    for ( let i=0; i<bestSet.b; i++ ) {
+        idsToReroll.push( blackList[i].id )
+    }
+
+    // TODO: Add White dice ids
+
+    
     // Make sure number of returned dice don't exceed available rerolls
+    if ( idsToReroll.length > rerolls ) {} // Some error handling
 
-    // For testing purposes only
-    const DUMMY_RETURN : Array<number> = [2,3,5]
+    const finalResults = {
+        success: bestSuccessChance,
+        ids: idsToReroll
+    }
 
-    return DUMMY_RETURN
+    return finalResults
 }
