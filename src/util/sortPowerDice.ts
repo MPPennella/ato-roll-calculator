@@ -36,16 +36,16 @@ export default function sortPowerDice ( diceToSort : Array<DieInfo> ) : Array<Di
     for ( const die of diceToSort ) {
         // If any die does not match with the first, not all dice are of same type and return unsorted list with logging
         if ( die.color !== firstColor ) {
-            console.log("ERROR: Not all die colors matched initial color of "+firstColor)
-            console.log("Returning unsorted list")
+            console.error("ERROR: Not all die colors matched initial color of "+firstColor)
+            console.error("Returning unsorted list")
             return diceToSort
         }
     }
 
     // If all dice match, check if they are White
     if ( firstColor === "white" ) {
-        console.log("ERROR: Contained White Power Dice which are unsortable at this time")
-        console.log("Returning unsorted list")
+        console.error("ERROR: Contained White Power Dice which are unsortable at this time")
+        console.error("Returning unsorted list")
         return diceToSort
     }
    

@@ -209,7 +209,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     // Make sure number of returned dice don't exceed available rerolls
     if ( idsToReroll.length > rerolls ) {
         // TODO: Add better error handling
-        console.log("ERROR: Rerolls suggested exceed number available")
+        console.error("ERROR: Rerolls suggested exceed number available")
     } 
 
     const finalResults = {
