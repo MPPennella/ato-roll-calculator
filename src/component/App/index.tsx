@@ -14,6 +14,7 @@ import dieOutcomes from '../../util/dieOutcomes';
 import thresholdCheck from '../../util/thresholdCheck';
 import averageResult from '../../util/averageResult';
 import PowerDiceData from '../../data/PowerDiceData.json'
+import sortDieColors from '../../util/sortDieColors';
 
 function App() {
 
@@ -109,7 +110,8 @@ function App() {
           component: newComp
       }
 
-      const updatedDiceTracker = diceList.concat( newTracker)
+      // Add new die and resort list, then update state
+      const updatedDiceTracker = sortDieColors(diceList.concat( newTracker))
       updateDice( updatedDiceTracker )
 
     }

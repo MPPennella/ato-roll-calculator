@@ -27,7 +27,7 @@ function compareColors( trackerA:PowerDieTracker, trackerB:PowerDieTracker ) : B
 }
 
 // Returns a sorted array in increasing value of color of the Power Dice provided
-export default function sortPowerDice ( diceToSort : Array<PowerDieTracker> ) : Array<PowerDieTracker> {
+export default function sortDieColors ( diceToSort : Array<PowerDieTracker> ) : Array<PowerDieTracker> {
     // If one or fewer items in provided array, return the input as it is already sorted
     if (diceToSort.length <= 1 ) return diceToSort
     
