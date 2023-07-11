@@ -1,28 +1,7 @@
-import { DieInfo } from "../types/DieInfo";
-import { PowerDieFace } from "../types/PowerDieFace";
-
-// // Compares two faces, and returns
-// // - true : if first is greater
-// // - false : if second is greater or equal
-// // Only works for Red and Black dice, White can't be sorted this way
-// function compareFaces( faceA:PowerDieFace, faceB:PowerDieFace ) : Boolean {
-//     const {power:powA, potential:potA} = faceA
-//     const {power:powB, potential:potB} = faceB
-
-//     // If Power is higher, is always better regardless of potential
-//     if ( powA > powB ) {
-//         return true
-//     }
-//     // If Power is equal, tiebreaker goes to potential, only considered better if greater (not equal)
-//     if ( powA === powB && potA > potB ) {
-//         return true
-//     }
-//     return false
-// }
 
 // Returns a sorted array in increasing value based on comparator function provided
 // arrayToSort - An array of one Type of item to be sorted
-// comparator - A function that can take two objects of type Type as input and compare them, returning a boolean - true if first argument is considered greater, false otherwise
+// comparator - A function that can take two objects of type Type as input and compare them, returning a boolean - true if first argument is considered greater, false otherwise (equal or lesser)
 export default function bubbleSort<Type> ( arrayToSort : Array<Type>, comparator:(a:Type, b:Type)=>Boolean ) : Array<Type> {
     // If one or fewer items in provided array, return the input as it is already sorted
     if (arrayToSort.length <= 1 ) return arrayToSort

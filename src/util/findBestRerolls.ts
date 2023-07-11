@@ -75,6 +75,11 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     let rerollCombos:Array<RerollDice> = []
 
     // Find each different combination of dice to reroll with available number of rerolls
+    const redMax : number = redList.length
+    const blackMax : number = blackList.length
+    const whiteMax : number = whiteList.length
+
+
     //TEST, assumption rerolls=3
     rerollCombos.push( {r:2,b:1,w:0} )
     rerollCombos.push( {r:1,b:2,w:0} )
@@ -162,7 +167,10 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
 
     
     // Make sure number of returned dice don't exceed available rerolls
-    if ( idsToReroll.length > rerolls ) {} // Some error handling
+    if ( idsToReroll.length > rerolls ) {
+        // TODO: Add better error handling
+        console.log("ERROR: Rerolls suggested exceed number available")
+    } 
 
     const finalResults = {
         success: bestSuccessChance,
