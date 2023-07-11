@@ -1,6 +1,7 @@
 .ConditionLabelContainer {
     display: flex;
     justify-content: right;
+    margin: 5px;
 }
 
 .ConditionLabel {
