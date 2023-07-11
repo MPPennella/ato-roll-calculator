@@ -2,10 +2,18 @@ import React from 'react'
 import { PowerDieFace } from '../../types/PowerDieFace'
 import './ActiveDie.css'
 
-function ActiveDie ({dieID, color, highlight=false, faceOptions, remove, upActFace } : {dieID:number, color:string, highlight?:Boolean, faceOptions:Array<PowerDieFace>, remove:(id:number)=>void, upActFace:(id:number, newActiveFaceSet:PowerDieFace[])=>void}) : React.JSX.Element {
-    // State to track current face selection
-    const [activeFace, setActiveFace] = React.useState("static")
-
+function ActiveDie (
+    {dieID, color, highlight=false, faceOptions, activeFace, remove, upActFace } 
+    : 
+    {
+        dieID:number, 
+        color:string, 
+        highlight?:Boolean, 
+        faceOptions:Array<PowerDieFace>, 
+        activeFace:string, remove:(id:number)=>void, 
+        upActFace:(id:number, faceLabel:string, newActiveFaceSet:PowerDieFace[])=>void
+    }) : React.JSX.Element {
+    
     // Map to correspond option values to face objects
     const faceMap = new Map< string, PowerDieFace>()
     faceOptions.forEach( (face:PowerDieFace, i:number) => {
@@ -46,8 +54,8 @@ function ActiveDie ({dieID, color, highlight=false, faceOptions, remove, upActFa
         }
 
         // Update states and propagate change info
-        setActiveFace(optionId)
-        upActFace(dieID, newActiveFaceSet )
+        // setActiveFace(optionId)
+        upActFace(dieID, optionId, newActiveFaceSet )
     }
 
     // Create the component for the <select> that holds the face options dropdown

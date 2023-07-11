@@ -2,76 +2,27 @@ import React from 'react'
 import './DieSelectPanel.css'
 import DieCreator from '../DieCreator'
 import enforcePositive from '../../util/enforcePositive'
-import findBestRerolls from '../../util/findBestRerolls'
+import ConditionLabel from '../ConditionLabel'
 
-function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComponents:Array<React.JSX.Element>, addDie:(color:string)=>void, updateHighlights:(idsToHighlight:number[])=>void } ) : React.JSX.Element  {
-
-    // State tracker for number of rerolls, may be hoisted later
-    const [rerolls, setRerolls] = React.useState(0)
+function DieSelectPanel ( 
+    {diceComponents, rerolls, addDie, updateRerolls, findRerolls} 
+    :
+    {
+        diceComponents:Array<React.JSX.Element>,
+        rerolls:number,
+        addDie:(color:string)=>void, 
+        updateRerolls:(newRerolls:number)=>void,
+        findRerolls:()=>void
+    } ) : React.JSX.Element  {
 
     // Returns a single div component containing the array of Dice to display, or a placeholder piece if no dice in pool
     function renderDice( dice:Array<React.JSX.Element>) : React.JSX.Element {
         return dice.length>0 ? <div className='DiePanel'>{dice}</div> : <div className='DiePanelEmpty'></div>
     }
 
-    // 
-    function findBestRerollandUpdate () {
-        console.log("FIND REROLL CALLED")
-        // Use die information and number of rerolls to find best dice combination to reroll and chance of success
-        const TEST_INPUT = [
-            {
-                id:1, 
-                color:"red", 
-                face: { power:1, potential:0, dot:1 }
-            },
-            {
-                id:2, 
-                color:"black", 
-                face: { power:2, potential:1, dot:0 }
-            },
-            {
-                id: 3,
-                color: "red",
-                face: { power: 1, potential: 1, dot: 0 }
-            },
-            {
-                id: 4,
-                color: "red",
-                face: { power: 2, potential: 0, dot: 0 }
-            },
-            {
-                id: 5,
-                color: "black",
-                face: { power: 0, potential: 1, dot: 0 }
-            }
-            ,{
-                id: 6,
-                color: "red",
-                face: { power: 1, potential: 1, dot: 0 }
-            }
-        ]
-        const bestRerolls = findBestRerolls( 13, 4, 4, TEST_INPUT)
-
-        const TEST_INPUT_2 = [
-            {
-                id:1, 
-                color:"red", 
-                face: { power:1, potential:1, dot:0 }
-            },
-            {
-                id:2, 
-                color:"black", 
-                face: { power:2, potential:0, dot:0 }
-            }
-        ]
-        // const bestRerolls = 
-        // findBestRerolls( 5, 2, 2, TEST_INPUT_2)
-        // findBestRerolls( 5, 1, 2, TEST_INPUT_2)
-        // findBestRerolls( 4, 0, 2, TEST_INPUT_2)
-
-        // Update view with results
-        updateHighlights( bestRerolls )
-    }
+    // Determine if reroll button should be disabled
+    // Should be disabled if no rerolls, or if not all dice are set to a static face
+    const isFindRerollDisabled = (rerolls) ? false : true
 
     return (
         <div className='DieSelectPanel'>
@@ -85,22 +36,29 @@ function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComp
             {renderDice(diceComponents) }
             {/* Dice Total: {diceComponents.length} */}
             
-            <div>
+            {/* <div>
                 <label>
                     Rerolls:
                     <input
                         type="number" 
                         value={rerolls} 
-                        onChange={ (e) => setRerolls( enforcePositive( Math.floor(+e.target.value))) }
+                        onChange={ (e) => updateRerolls( enforcePositive( Math.floor(+e.target.value))) }
                     />
-                </label>
-                {/* TODO: Add +/- buttons for better mobile experience */}
-                
+                </label>                
+            </div> */}
+
+            <div style={{width:"min-content", margin:"auto"}} >
+                <ConditionLabel boxValue={rerolls} updateValue={updateRerolls} >Rerolls:</ConditionLabel>
             </div>
-            <button onClick={findBestRerollandUpdate} >Find Best Rerolls</button>
+
+            <button onClick={findRerolls} disabled={ isFindRerollDisabled }>Find Best Rerolls</button>
+
+            {/* <div>
+                Chance of reroll success: {rerollSuccess.toFixed()}%
+            </div> */}
+
         </div>
     )
 }
-
 
 export default DieSelectPanel

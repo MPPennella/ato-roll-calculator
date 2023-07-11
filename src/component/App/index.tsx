@@ -6,16 +6,20 @@ import ConditionSelectPanel from '../ConditionSelectPanel';
 import DieSelectPanel from '../DieSelectPanel';
 import ResultDisplayPanel from '../ResultDisplayPanel';
 // Types
+import { DieInfo } from '../../types/DieInfo';
 import { PowerDie } from '../../types/PowerDie';
 import { PowerDieFace } from '../../types/PowerDieFace';
 import { PowerDieTracker } from '../../types/PowerDieTracker';
 // Data and processing utilities
+import { RED_DIE, BLACK_DIE, WHITE_DIE } from '../../data/PowerDiceData'
 import dieOutcomes from '../../util/dieOutcomes';
 import thresholdCheck from '../../util/thresholdCheck';
 import averageResult from '../../util/averageResult';
-import PowerDiceData from '../../data/PowerDiceData.json'
 import sortDieColors from '../../util/sortDieColors';
+import findBestRerolls from '../../util/findBestRerolls';
 
+
+// Main component which controls all app function and tracks necessary states
 function App() {
 
   // State variables
@@ -23,6 +27,7 @@ function App() {
   // State to track the target AT Threshold and Breaks available
   const [atThreshold, setATThreshold] = React.useState(1)
   const [breaks, setBreaks] = React.useState(0)
+  const [rerolls, setRerolls] = React.useState(0)
 
   // State to track the various dice and a mutable reference to such
   const [diceTracker, setDiceTracker] = React.useState(Array<PowerDieTracker>)
@@ -60,13 +65,18 @@ function App() {
   // CALLBACKS
 
   // Callback to update AT state
-  function updateAT( newAT:number ) : void {
+  function handleUpdateAT( newAT:number ) : void {
     setATThreshold(newAT)
   }
 
   // Callback to update Break state
-  function updateBreaks( newBreaks:number ) : void {
+  function handleUpdateBreaks( newBreaks:number ) : void {
     setBreaks(newBreaks)
+  }
+
+  // Callback to update Reroll state
+  function handleUpdateRerolls( newRerolls:number ) : void {
+    setRerolls(newRerolls)
   }
 
   // Adds a new die to the pool, handling input of which type (color) to add
@@ -81,10 +91,17 @@ function App() {
 
     // Try to find die info in data matching color specified
     let newDie:PowerDie|undefined = undefined
-    for (const die of PowerDiceData.data as Array<PowerDie> ) {
-      if (die.color === color.toLowerCase()) {
-        newDie = die
-      }
+    // for (const die of PowerDiceData.data as Array<PowerDie> ) {
+    //   if (die.color === color.toLowerCase()) {
+    //     newDie = die
+    //   }
+    // }
+
+    switch (color) {
+      case "Red": newDie = RED_DIE; break;
+      case "Black": newDie = BLACK_DIE; break;
+      case "White": newDie = WHITE_DIE; break;
+      default: break;
     }
     
     // Make sure applicable die data was found, otherwise do not proceed with creating new entry
@@ -98,6 +115,7 @@ function App() {
         color: color,
         highlight: false,
         faceOptions: newDie.faces,
+        activeFace: "rand",
         remove: handleRemoveDie,
         upActFace: handleUpdateActiveFaces
       }
@@ -136,6 +154,7 @@ function App() {
 
       // Only need to change if different status from before
       if (tracker.component.props.highlight!== highlightStatus) {
+        // TODO: React gives key duplicate error first time this is called, figure out why
         tracker.component = <ActiveDie  {...tracker.component.props} highlight={highlightStatus} />
       }
     }
@@ -151,16 +170,42 @@ function App() {
   }
 
   // Updates the active faces on a die
-  function handleUpdateActiveFaces( componentId:number, newFaces:Array<PowerDieFace> ) : void {
+  function handleUpdateActiveFaces( componentId:number, newActiveFace:string, newFaces:Array<PowerDieFace> ) : void {
     
     // Remap dice objects and update matching ID with new active faces
     const updatedDiceTracker = diceTrackRef.current.map( (tracker:PowerDieTracker) => {
       // Search for correct component id and update face set
-      if (tracker.id === componentId) tracker.activeFaceSet = newFaces
+      if (tracker.id === componentId) {
+          tracker.activeFaceSet = newFaces
+          // TODO: React gives key duplicate error first time this is called, figure out why
+          tracker.component = <ActiveDie  {...tracker.component.props} activeFace={newActiveFace} />
+      }
       return tracker
     })
 
     updateDice(updatedDiceTracker)
+  }
+
+  // 
+  function findBestRerollandUpdate () {
+    console.log("FIND REROLL CALLED")
+    // Use die information and number of rerolls to find best dice combination to reroll and chance of success
+    let diceInfo:Array<DieInfo> = []
+    
+    // Generate array of DieInfo objects by pulling info from DiceTrackers
+    for (const die of diceTrackRef.current as PowerDieTracker[]) {
+      const { color } : {color:string} = die.component.props
+      diceInfo.push({
+        id: die.id,
+        color: color.toLowerCase(), 
+        face: die.activeFaceSet[0]
+      }) 
+    }
+
+    const bestRerolls = findBestRerolls( atThreshold, breaks, rerolls, diceInfo)
+
+    // Update view with results
+    handleUpdateDieHighlights( bestRerolls )
   }
 
   
@@ -173,14 +218,16 @@ function App() {
   const conditionProps = {
     atThreshold: atThreshold,
     breaks: breaks,
-    upAT: updateAT,
-    upBr: updateBreaks
+    upAT: handleUpdateAT,
+    upBr: handleUpdateBreaks
   }
 
   const dieSelectProps = {
     diceComponents: diceTracker.map( (element) => element.component),
+    rerolls: rerolls,
     addDie: handleAddNewDie,
-    updateHighlights: handleUpdateDieHighlights
+    updateRerolls: handleUpdateRerolls,
+    findRerolls: findBestRerollandUpdate
   }
 
   return (

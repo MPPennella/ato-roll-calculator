@@ -2,7 +2,15 @@ import React from 'react'
 import ConditionLabel from '../ConditionLabel'
 import './ConditionSelectPanel.css'
 
-function ConditionSelectPanel ( {atThreshold, breaks, upAT, upBr} : {atThreshold:number, breaks:number, upAT:(newValue:number)=>void, upBr:(newValue:number)=>void}) {
+function ConditionSelectPanel ( 
+    {atThreshold, breaks, upAT, upBr} 
+    : 
+    {
+        atThreshold:number, 
+        breaks:number, 
+        upAT:(newValue:number)=>void, 
+        upBr:(newValue:number)=>void
+    }) {
 
     return (
         <div className='ConditionSelectPanel'>
