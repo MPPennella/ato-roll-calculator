@@ -23,7 +23,13 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
     if (numDice === 0 || rerolls === 0) return []
 
     // Otherwise call recursive function to calculate best reroll targets
-    return findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo ).ids
+    const result = findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo )
+
+    console.log("OVERALL BEST:")
+    console.log(result.success.toFixed(3)+"%")
+    console.log(result.ids)
+
+    return result.ids
 }
 
 // Recursive function to find results
@@ -33,8 +39,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         
         const dieFaces = diceInfo.map(die => [die.face])
         const success = thresholdCheck( thresholdValue, breakValue, dieOutcomes(dieFaces))
-        console.log("N")
-        console.log(success)
+
         return {
             success: success,
             ids:[]
@@ -54,12 +59,12 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     const redList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "red"))
     const blackList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "black"))
     const whiteList : Array<DieInfo> = filterDiceByColor(diceInfo, "white")
-    console.log("RED:")
-    console.log(redList)
-    console.log("BLACK:")
-    console.log(blackList)
-    console.log("WHITE:")
-    console.log(whiteList)
+    // console.log("RED:")
+    // console.log(redList)
+    // console.log("BLACK:")
+    // console.log(blackList)
+    // console.log("WHITE:")
+    // console.log(whiteList)
 
     // Choose best dice to reroll by trying different combinations of lowest dice from each color pool to reroll (for White all must be considered)
 
@@ -79,11 +84,44 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     const blackMax : number = blackList.length
     const whiteMax : number = whiteList.length
 
+    for (let r = 0; r <= rerolls; r++) {
+        let newReroll:RerollDice = { r:0, b:0, w:0 }
+        
+        // If r exceeds available dice, terminate iteration
+        if ( r > redMax ) continue
 
-    //TEST, assumption rerolls=3
-    rerollCombos.push( {r:2,b:1,w:0} )
-    rerollCombos.push( {r:1,b:2,w:0} )
+        // Allocate *r* rerolls to Red
+        newReroll.r = r
 
+        // Check if more to allocate and proceed to next color (black)
+        let remAfterRed = rerolls - r
+        if (remAfterRed > 0 ) {
+            for ( let b = 0; b <= remAfterRed; b++ ) {
+                // If b exceeds available dice, terminate iteration
+                if ( b > blackMax ) continue
+
+                // Allocate *b* rerolls to Black
+                newReroll.b = b
+
+                // Check if more to allocate and proceed to next color (white)
+                let remAfterBlack = remAfterRed - b
+                if (remAfterBlack > 0 ) {                    
+                    // If w exceeds available dice, terminate iteration
+                    if ( remAfterBlack > whiteMax ) continue
+
+                    // Allocate *w* rerolls to White
+                    newReroll.w = remAfterBlack
+
+                    rerollCombos.push(newReroll)
+                    
+                } else { rerollCombos.push(newReroll) }
+            }
+        } else { rerollCombos.push(newReroll) }
+    }
+
+    // console.log("REROLLS AVAILBLE: "+rerolls)
+    // console.log("CALCULATED REROLL COMBOS:")
+    // console.log(rerollCombos)
 
     // Check each combination to see how good the result is and compare
 
@@ -101,27 +139,29 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         // Add full set of randomized faces for each rerolling Red die
         for (let i=0; i<redRerolls; i++) { redFaceSetList.push( RED_DIE.faces) }
  
-        console.log("RED FACES")
-        console.log(redFaceSetList)
-
+        
         // Create list of static/randomized faces of Black dice
         // Start with list of dice faces that are not being rerolled, extracting just the face info from each die
         const blackFaceSetList:Array<PowerDieFace[]> = blackList.slice( (blackRerolls < blackList.length) ? blackRerolls - blackList.length : blackList.length ).map( die => [die.face])
         // Add full set of randomized faces for each rerolling black die
         for (let i=0; i<blackRerolls; i++) { blackFaceSetList.push( BLACK_DIE.faces) }
 
-        console.log("BLACK FACES")
-        console.log(blackFaceSetList)
-
         // TODO: Implement later, for now treat as no White dice being rerolled
         const whiteFaceSetList:Array<PowerDieFace[]> = whiteList.map( die => [die.face] )
+
+        // console.log("RED FACES")
+        // console.log(redFaceSetList)
+        // console.log("BLACK FACES")
+        // console.log(blackFaceSetList)
+        // console.log("WHITE FACES")
+        // console.log(whiteFaceSetList)
 
         const input:Array<PowerDieFace[]> = redFaceSetList.concat(blackFaceSetList).concat(whiteFaceSetList)
         const outcomes = dieOutcomes(input)
         const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes)
 
-        console.log("REROLL TRIAL SUCCESS:")
-        console.log( successPcnt )
+        // console.log("REROLL TRIAL SUCCESS:")
+        // console.log( successPcnt )
 
         // Compare to previous best and update if better
         if ( successPcnt > bestSuccessChance ) {
