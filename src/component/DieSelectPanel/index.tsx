@@ -4,7 +4,7 @@ import DieCreator from '../DieCreator'
 import enforcePositive from '../../util/enforcePositive'
 import findBestRerolls from '../../util/findBestRerolls'
 
-function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComponents:Array<React.JSX.Element>, addDie:Function, updateHighlights:Function } ) {
+function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComponents:Array<React.JSX.Element>, addDie:(color:string)=>void, updateHighlights:(idsToHighlight:number[])=>void } ) : React.JSX.Element  {
 
     // State tracker for number of rerolls, may be hoisted later
     const [rerolls, setRerolls] = React.useState(0)
@@ -50,7 +50,7 @@ function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComp
                 face: { power: 1, potential: 1, dot: 0 }
             }
         ]
-        // const bestRerolls = findBestRerolls( 13, 4, 4, TEST_INPUT)
+        const bestRerolls = findBestRerolls( 13, 4, 4, TEST_INPUT)
 
         const TEST_INPUT_2 = [
             {
@@ -64,10 +64,10 @@ function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComp
                 face: { power:2, potential:0, dot:0 }
             }
         ]
-        const bestRerolls = 
-        findBestRerolls( 5, 2, 2, TEST_INPUT_2)
-        findBestRerolls( 5, 1, 2, TEST_INPUT_2)
-        findBestRerolls( 4, 0, 2, TEST_INPUT_2)
+        // const bestRerolls = 
+        // findBestRerolls( 5, 2, 2, TEST_INPUT_2)
+        // findBestRerolls( 5, 1, 2, TEST_INPUT_2)
+        // findBestRerolls( 4, 0, 2, TEST_INPUT_2)
 
         // Update view with results
         updateHighlights( bestRerolls )

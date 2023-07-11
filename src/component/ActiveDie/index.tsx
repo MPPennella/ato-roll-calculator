@@ -2,7 +2,7 @@ import React from 'react'
 import { PowerDieFace } from '../../types/PowerDieFace'
 import './ActiveDie.css'
 
-function ActiveDie ({dieID, color, highlight=false, faceOptions, remove, upActFace } : {dieID:number, color:string, highlight?:Boolean, faceOptions:Array<PowerDieFace>, remove:Function, upActFace:Function}) {
+function ActiveDie ({dieID, color, highlight=false, faceOptions, remove, upActFace } : {dieID:number, color:string, highlight?:Boolean, faceOptions:Array<PowerDieFace>, remove:(id:number)=>void, upActFace:(id:number, newActiveFaceSet:PowerDieFace[])=>void}) : React.JSX.Element {
     // State to track current face selection
     const [activeFace, setActiveFace] = React.useState("static")
 
@@ -32,7 +32,7 @@ function ActiveDie ({dieID, color, highlight=false, faceOptions, remove, upActFa
    
 
     // Updates the active face selection
-    function updateSelected(e:any) {
+    function updateSelected(e:any):void {
         const optionId = e.target.value
         
         // By default treat as random selected
