@@ -18,6 +18,7 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
 // Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, rerolls available, and what faces were rolled on the dice
 export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : Array<number> {
     const numDice = diceInfo.length
+    console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}`)
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
     if (numDice === 0 || rerolls === 0) return []
@@ -135,14 +136,16 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
 
         // Create list of static/randomized faces of Red dice
         // Start with list of dice faces that are not being rerolled, extracting just the face info from each die
-        const redFaceSetList:Array<PowerDieFace[]> = redList.slice( redRerolls - redList.length  ).map( die => [die.face])
+        const indexToSliceRed = (redRerolls < redList.length) ? redRerolls - redList.length : redList.length
+        const redFaceSetList:Array<PowerDieFace[]> = redList.slice( indexToSliceRed  ).map( die => [die.face])
         // Add full set of randomized faces for each rerolling Red die
         for (let i=0; i<redRerolls; i++) { redFaceSetList.push( RED_DIE.faces) }
  
         
         // Create list of static/randomized faces of Black dice
         // Start with list of dice faces that are not being rerolled, extracting just the face info from each die
-        const blackFaceSetList:Array<PowerDieFace[]> = blackList.slice( (blackRerolls < blackList.length) ? blackRerolls - blackList.length : blackList.length ).map( die => [die.face])
+        const indexToSliceBlack = (blackRerolls < blackList.length) ? blackRerolls - blackList.length : blackList.length
+        const blackFaceSetList:Array<PowerDieFace[]> = blackList.slice( indexToSliceBlack ).map( die => [die.face])
         // Add full set of randomized faces for each rerolling black die
         for (let i=0; i<blackRerolls; i++) { blackFaceSetList.push( BLACK_DIE.faces) }
 

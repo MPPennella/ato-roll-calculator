@@ -64,7 +64,8 @@ function DieSelectPanel ( {diceComponents, addDie, updateHighlights} : {diceComp
                 face: { power:2, potential:0, dot:0 }
             }
         ]
-        const bestRerolls = findBestRerolls( 5, 2, 2, TEST_INPUT_2)
+        const bestRerolls = 
+        findBestRerolls( 5, 2, 2, TEST_INPUT_2)
         findBestRerolls( 5, 1, 2, TEST_INPUT_2)
         findBestRerolls( 4, 0, 2, TEST_INPUT_2)
 
