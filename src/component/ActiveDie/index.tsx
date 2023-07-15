@@ -10,7 +10,8 @@ function ActiveDie (
         color:string, 
         highlight?:Boolean, 
         faceOptions:Array<PowerDieFace>, 
-        activeFace:string, remove:(id:number)=>void, 
+        activeFace:string, 
+        remove:(id:number)=>void, 
         upActFace:(id:number, faceLabel:string, newActiveFaceSet:PowerDieFace[])=>void
     }) : React.JSX.Element {
     
@@ -23,9 +24,9 @@ function ActiveDie (
     // Setup to control CSS styling of die based on color
     let colorTag:string
     switch (color) {
-        case "Red": colorTag = "RedDie"; break;
-        case "Black": colorTag = "BlackDie"; break;
-        case "White": colorTag = "WhiteDie"; break;
+        case "red": colorTag = "RedDie"; break;
+        case "black": colorTag = "BlackDie"; break;
+        case "white": colorTag = "WhiteDie"; break;
         default: colorTag = ""; break;
     }
 
