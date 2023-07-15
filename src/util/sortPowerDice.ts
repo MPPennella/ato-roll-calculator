@@ -1,4 +1,4 @@
-import { DieInfo } from "../types/DieInfo";
+import { DieInfo } from "../types/";
 import bubbleSort from "./bubblesort";
 
 // Compares two faces, and returns

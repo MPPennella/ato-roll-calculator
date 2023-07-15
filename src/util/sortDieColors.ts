@@ -1,4 +1,4 @@
-import { PowerDieTracker } from "../types/PowerDieTracker";
+import { PowerDieTracker } from "../types/";
 import bubbleSort from "./bubblesort";
 
 // Compares two colors, and returns

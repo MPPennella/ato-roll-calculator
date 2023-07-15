@@ -3,8 +3,7 @@ import sortPowerDice from "./sortPowerDice"
 import dieOutcomes from "./dieOutcomes"
 import thresholdCheck from "./thresholdCheck"
 // Type imports
-import { DieInfo } from "../types/DieInfo"
-import { PowerDieFace } from "../types/PowerDieFace"
+import { DieInfo, PowerDieFace } from "../types/"
 // Data import
 import {RED_DIE, BLACK_DIE, WHITE_DIE} from '../data/PowerDiceData'
 

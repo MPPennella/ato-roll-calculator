@@ -6,10 +6,7 @@ import ConditionSelectPanel from '../ConditionSelectPanel';
 import DieSelectPanel from '../DieSelectPanel';
 import ResultDisplayPanel from '../ResultDisplayPanel';
 // Types
-import { DieInfo } from '../../types/DieInfo';
-import { PowerDie } from '../../types/PowerDie';
-import { PowerDieFace } from '../../types/PowerDieFace';
-import { PowerDieTracker } from '../../types/PowerDieTracker';
+import { DieInfo, PowerDie, PowerDieFace, PowerDieTracker } from '../../types';
 // Data and processing utilities
 import { RED_DIE, BLACK_DIE, WHITE_DIE } from '../../data/PowerDiceData';
 import dieOutcomes from '../../util/dieOutcomes';
