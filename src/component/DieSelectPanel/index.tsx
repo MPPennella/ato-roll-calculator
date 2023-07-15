@@ -51,7 +51,7 @@ function DieSelectPanel (
                 <ConditionLabel boxValue={rerolls} updateValue={updateRerolls} >Rerolls:</ConditionLabel>
             </div>
 
-            <button onClick={findRerolls} disabled={ isFindRerollDisabled }>Find Best Rerolls</button>
+            <button className='RerollButton' onClick={findRerolls} disabled={ isFindRerollDisabled }>Find Best Rerolls</button>
 
             {/* <div>
                 Chance of reroll success: {rerollSuccess.toFixed()}%

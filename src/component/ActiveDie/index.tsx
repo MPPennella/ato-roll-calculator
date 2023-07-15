@@ -69,13 +69,14 @@ function ActiveDie (
         for (let i=0; i<faceOptions.length; i++) {
             let curr = faceOptions[i]
             faceOptionComponents.push(
-                <option key={i} value={`face${i}`}>
+                <option className="FaceSelectOption" key={i} value={`face${i}`}>
                     { `Pow ${curr.power}, Break ${curr.potential}` }
                 </option>
             )
         }
 
         return <select
+            className="FaceSelectSelect"
             value={activeFace}
             onChange={updateSelected}
             children={faceOptionComponents}

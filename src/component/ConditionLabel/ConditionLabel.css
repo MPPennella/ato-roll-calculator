@@ -11,20 +11,22 @@
     justify-content: right;
 }
 
-.MobileHelperButton {
-    margin-left: 2px;
-    margin-right: 2px;
-}
-
-input {
+.ConditionInput {
     width: 30px;
     margin-left: 10px;
     margin-right: 3px;
 }
 
+.MobileHelperButton {
+    height: 24px;
+    width: 24px;
+    margin-left: 2px;
+    margin-right: 2px;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+}
+
 @media (any-pointer: coarse) {
-    .ConditionLabel {
-        /* width: max-content; */
-        /* margin:auto; */
-    }
+    /* In case any mobile-specific adjustments are needed */
 }

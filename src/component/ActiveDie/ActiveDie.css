@@ -80,4 +80,22 @@
     .WhiteDie > .RemoveButton {
         color: black
     }
+
+    .HighlightedDie {
+        margin-top: 1px;
+        margin-bottom: 6px;
+        border: 5px solid #00ffff;
+    }
+    
+}
+
+
+@media (any-pointer: coarse) {
+    .FaceSelectSelect {
+        height: 30px;
+    }
+
+    .FaceSelectOption {
+        height: 30px;
+    }
 }

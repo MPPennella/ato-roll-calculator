@@ -23,6 +23,16 @@ h2 {
   margin-bottom: 5px;
 }
 
+button {
+  background-color: #dddddd;
+  border: 2px #777777 solid;
+  border-radius: 4px;
+}
+
+button:disabled {
+  color: #aaaaaa
+}
+
 @media (prefers-color-scheme: dark) {
   .App {
     background-color: #222727;
@@ -40,6 +50,13 @@ h2 {
 
   button {
     background-color: #666666;
+    border-color: #888888;
     color: #ebece7;
   }
+
+  button:disabled {
+    border-color: #777777;
+    color: #888888
+  }
+
 }

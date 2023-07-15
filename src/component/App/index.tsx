@@ -11,7 +11,7 @@ import { PowerDie } from '../../types/PowerDie';
 import { PowerDieFace } from '../../types/PowerDieFace';
 import { PowerDieTracker } from '../../types/PowerDieTracker';
 // Data and processing utilities
-import { RED_DIE, BLACK_DIE, WHITE_DIE } from '../../data/PowerDiceData'
+import { RED_DIE, BLACK_DIE, WHITE_DIE } from '../../data/PowerDiceData';
 import dieOutcomes from '../../util/dieOutcomes';
 import thresholdCheck from '../../util/thresholdCheck';
 import averageResult from '../../util/averageResult';

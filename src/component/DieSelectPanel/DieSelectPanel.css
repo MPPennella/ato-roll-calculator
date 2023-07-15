@@ -32,3 +32,16 @@
 .DiePanelEmpty {
     min-height: 160px;
 }
+
+.RerollButton {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+@media (any-pointer: coarse) {
+    .RerollButton {
+        height: 30px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}

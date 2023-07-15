@@ -25,7 +25,8 @@ function ConditionLabel ({children, boxValue, updateValue} : {children:string, b
     return (
         <div className='ConditionLabelContainer'>                
             <label className='ConditionLabel'>{children} 
-                <input 
+                <input
+                    className='ConditionInput'
                     type="number" 
                     value={boxValue} 
                     onChange={ (e) => updateValue( enforcePositive( Math.floor(+e.target.value))) }
