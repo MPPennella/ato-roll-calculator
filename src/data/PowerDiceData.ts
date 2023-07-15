@@ -1,5 +1,5 @@
 import PowerDiceData from './PowerDiceData.json'
-import { PowerDie } from '../types/PowerDie'
+import { PowerDie } from '../types/'
 
 const PowerDice : Array<PowerDie> = PowerDiceData.data as Array<PowerDie>
 
