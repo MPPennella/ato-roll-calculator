@@ -1,4 +1,4 @@
-import type {PowerDieFace} from "../types/PowerDieFace"
+import type {PowerDieFace} from "../types/"
 
 // Finds the average Power generated from the list of possible Face totals while factoring in the number of Breaks available
 export default function averageResult ( outcomeList:Array<PowerDieFace>, breakValue:number ) : number {

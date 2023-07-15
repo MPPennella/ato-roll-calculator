@@ -1,5 +1,5 @@
 import React from 'react'
-import { PowerDieFace } from '../../types/PowerDieFace'
+import { PowerDieFace } from '../../types/'
 import './ActiveDie.css'
 
 function ActiveDie (

@@ -1,4 +1,4 @@
-import type {PowerDieFace} from "../types/PowerDieFace"
+import type {PowerDieFace} from "../types/"
 
 // Returns the percentage of outcomes that meet or exceed the AT Threshold, factoring in the given number of breaks
 export default function thresholdCheck ( thresholdValue:number, breakValue:number, outcomeList:Array<PowerDieFace>) : number {

@@ -1,4 +1,4 @@
-import { PowerDieFace } from "../types/PowerDieFace"
+import { PowerDieFace } from "../types/"
 
 // Creates a list of all possible outcome totals and returns that as an Array of (using PowerDieFace to represent each total)
 export default function dieOutcomes ( faceSetList:PowerDieFace[][]) : Array<PowerDieFace> {
