@@ -12,15 +12,22 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
-### 1.2.x
+### 1.2.2
+
+* Finished implementation of White Power Dice in reroll calculations
+
+### 1.2.1
+
+* Styling changes
+* Fixed some behind-the-scenes React issues and other back-end cleanup
+
+### 1.2.0
 
 * Added re-roll functionality
+* Dice now auto-sort by color
+* Various visual adjustments
 
-### 1.1.x
-
-* Notes
-
-### 1.0.x
+### 1.1.0
 
 * First release version
 
