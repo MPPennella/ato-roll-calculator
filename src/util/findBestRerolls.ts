@@ -260,8 +260,6 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
             }
         }
 
-        // const whiteFaceSetList:Array<PowerDieFace[]> = whiteList.map( die => [die.face] )
-
         // Get list of just Red/Black Face Set Lists
         const inputRB:Array<PowerDieFace[]> = redFaceSetList.concat(blackFaceSetList)
         
@@ -288,11 +286,6 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
                 if ( successPcnt > bestSuccessChance ) {
                     bestSuccessChance = successPcnt
                     bestSet = rerollSet
-                    // console.log("WHITE DIE REROLL INFO")
-                    // console.log(whiteFaceSetListCombos)
-                    // console.log(whiteFaceSetListCombos.length)
-                    // console.log(indexCombinationList)
-                    // console.log(indexCombinationList.length)
                     bestWhiteIndexset = indexCombinationList[i]
                 }
             }
@@ -329,8 +322,6 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     // Add White dice ids starting from bottom of list
     for ( let i=0; i<bestWhiteIndexset.length; i++ ) {
         idsToReroll.push( whiteList[bestWhiteIndexset[i]].id )
-        console.log("WHITE DIE PUSHED")
-        console.log(whiteList[bestWhiteIndexset[i]].id)
     }
 
     
