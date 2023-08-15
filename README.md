@@ -15,11 +15,13 @@ The user can also select individual faces for each die, representing the result 
 ### 1.2.2
 
 * Finished implementation of White Power Dice in reroll calculations
+* Fixed some behind-the-scenes React issues
+* Major updates to Readme including Overview and Version History sections
 
 ### 1.2.1
 
-* Styling changes
-* Fixed some behind-the-scenes React issues and other back-end cleanup
+* Styling changes, including improvements to light/dark mode responsiveness
+* Some codebase refactoring and cleanup
 
 ### 1.2.0
 
@@ -29,7 +31,7 @@ The user can also select individual faces for each die, representing the result 
 
 ### 1.1.0
 
-* First release version
+* Initial release version
 
 ---
 
