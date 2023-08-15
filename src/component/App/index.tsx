@@ -106,23 +106,12 @@ function App() {
     
       const newKey = genNewKey()
 
-      const activeDieProps = {
-        key: newKey,
-        dieID: newKey,
-        color: color,
-        highlight: false,
-        faceOptions: newDie.faces,
-        activeFace: "rand",
-        remove: handleRemoveDie,
-        upActFace: handleUpdateActiveFaces
-      }
-      const newComp = <ActiveDie {...activeDieProps} />
-
       const newTracker:PowerDieTracker = {
           id: newKey,
           die: newDie,
           activeFaceSet: newDie.faces,
-          component: newComp
+          activeFaceOptId: "rand",
+          highlight: false
       }
 
       // Add new die and resort list, then update state
@@ -134,7 +123,7 @@ function App() {
 
   // Changes highlighting of dice objects - highlights specified IDs, de-highlights any others
   function handleUpdateDieHighlights (dieIDs:Array<number>) : void {
-    const updatedDiceTracker = diceTrackRef.current
+    const updatedDiceTracker = diceTrackRef.current as Array<PowerDieTracker>
 
     // Check each tracked die to find matches
     for (const tracker of updatedDiceTracker) {
@@ -150,9 +139,9 @@ function App() {
       }
 
       // Only need to change if different status from before
-      if (tracker.component.props.highlight!== highlightStatus) {
-        // TODO: React gives key duplicate error first time this is called, figure out why
-        tracker.component = <ActiveDie  {...tracker.component.props} highlight={highlightStatus} />
+      if (tracker.highlight!== highlightStatus) {
+        // TODO: Issue - React does not immediately update highlight (on or off) if only one die in list, but does track as updates when another added
+        tracker.highlight = highlightStatus
       }
     }
 
@@ -166,6 +155,7 @@ function App() {
     updateDice(remaining)
   }
 
+
   // Updates the active faces on a die
   function handleUpdateActiveFaces( componentId:number, newActiveFace:string, newFaces:Array<PowerDieFace> ) : void {
     
@@ -174,8 +164,7 @@ function App() {
       // Search for correct component id and update face set
       if (tracker.id === componentId) {
           tracker.activeFaceSet = newFaces
-          // TODO: React gives key duplicate error first time this is called, figure out why
-          tracker.component = <ActiveDie  {...tracker.component.props} activeFace={newActiveFace} />
+          tracker.activeFaceOptId = newActiveFace
       }
       return tracker
     })
@@ -183,19 +172,20 @@ function App() {
     updateDice(updatedDiceTracker)
   }
 
-  // 
+
+  // Use die faces and other selections to find which dice are best to reroll to reach target values
   function findBestRerollandUpdate () {
     console.log("FIND REROLL CALLED")
     // Use die information and number of rerolls to find best dice combination to reroll and chance of success
     let diceInfo:Array<DieInfo> = []
     
     // Generate array of DieInfo objects by pulling info from DiceTrackers
-    for (const die of diceTrackRef.current as PowerDieTracker[]) {
-      const { color } : {color:string} = die.component.props
+    for (const dieTracker of diceTrackRef.current as PowerDieTracker[]) {
+      const { color } : {color:string} = dieTracker.die
       diceInfo.push({
-        id: die.id,
+        id: dieTracker.id,
         color: color.toLowerCase(), 
-        face: die.activeFaceSet[0]
+        face: dieTracker.activeFaceSet[0]
       }) 
     }
 
@@ -220,13 +210,24 @@ function App() {
   }
 
   const dieSelectProps = {
-    diceComponents: diceTracker.map( (element) => element.component),
+    diceComponents: diceTracker.map( (dieTracker) => {return <ActiveDie
+      key = {dieTracker.id}
+      dieID = {dieTracker.id} 
+      color = {dieTracker.die.color}
+      highlight = {dieTracker.highlight}
+      faceOptions = {dieTracker.die.faces}
+      activeFace = {dieTracker.activeFaceOptId}
+      remove = {handleRemoveDie}
+      upActFace = {handleUpdateActiveFaces  }
+      />
+    }),
     rerolls: rerolls,
     addDie: handleAddNewDie,
     updateRerolls: handleUpdateRerolls,
     findRerolls: findBestRerollandUpdate
   }
 
+  // Create display components and pass props
   return (
     <div className="App">
       <div className='BoundingBox'>

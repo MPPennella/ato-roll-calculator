@@ -17,7 +17,7 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
 // Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, rerolls available, and what faces were rolled on the dice
 export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : Array<number> {
     const numDice = diceInfo.length
-    console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}`)
+    console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
     if (numDice === 0 || rerolls === 0) return []
@@ -34,6 +34,7 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 
 // Recursive function to find results
 function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : {success: number, ids: Array<number>} {
+    
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
         
@@ -77,61 +78,72 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     }
 
     // Array to store the different combinations of rerolling dice we want to try
-    let rerollCombos:Array<RerollDice> = []
+    const rerollCombos:Array<RerollDice> = []
 
     // Find each different combination of dice to reroll with available number of rerolls
     const redMax : number = redList.length
     const blackMax : number = blackList.length
     const whiteMax : number = whiteList.length
 
+    // *r* counts rerolls being assigned to Red
     for (let r = 0; r <= rerolls; r++) {
-        let newReroll:RerollDice = { r:0, b:0, w:0 }
         
-        // If r exceeds available dice, terminate iteration
+        // If *r* exceeds available dice, not enough to use all rerolls: terminate current iteration
         if ( r > redMax ) continue
-
-        // Allocate *r* rerolls to Red
-        newReroll.r = r
 
         // Check if more to allocate and proceed to next color (black)
         let remAfterRed = rerolls - r
         if (remAfterRed > 0 ) {
+            // *b* counts rerolls being assigned to Black
             for ( let b = 0; b <= remAfterRed; b++ ) {
-                // If b exceeds available dice, terminate iteration
+                // If *b* exceeds available dice, not enough to use all rerolls: terminate current iteration
                 if ( b > blackMax ) continue
 
-                // Allocate *b* rerolls to Black
-                newReroll.b = b
-
                 // Check if more to allocate and proceed to next color (white)
-                let remAfterBlack = remAfterRed - b
-                if (remAfterBlack > 0 ) {                    
-                    // If w exceeds available dice, terminate iteration
-                    if ( remAfterBlack > whiteMax ) continue
+                let w = remAfterRed - b
 
-                    // Allocate *w* rerolls to White
-                    newReroll.w = remAfterBlack
+                // If *w* exceeds available dice, not enough to use all rerolls: terminate current iteration
+                if ( w > whiteMax ) continue
 
-                    rerollCombos.push(newReroll)
-                    
-                } else { rerollCombos.push(newReroll) }
+                // Allocate reroll counts
+                const newReroll:RerollDice = {
+                    r: r,
+                    b: b,
+                    w: w
+                }
+                
+                // Add to list of reroll combos to investigate
+                rerollCombos.push(newReroll)                    
             }
-        } else { rerollCombos.push(newReroll) }
+        } else { 
+            // Allocate reroll counts (only red are non-zero in this condition)
+            const newReroll:RerollDice = {
+                r: r,
+                b: 0,
+                w: 0
+            }
+
+            // Add to list of reroll combos to investigate
+            rerollCombos.push(newReroll) 
+        }
     }
 
-    // console.log("REROLLS AVAILBLE: "+rerolls)
-    // console.log("CALCULATED REROLL COMBOS:")
-    // console.log(rerollCombos)
+    console.log("REROLLS AVAILBLE: "+rerolls)
+    console.log("CALCULATED REROLL COMBOS:")
+    console.log(rerollCombos)
 
     // Check each combination to see how good the result is and compare
 
     // Make trackers for best success and what combination produced it
     let bestSuccessChance:number = 0
     let bestSet:RerollDice = {r:0, b:0, w:0}
+    let bestWhiteIndexset : Array<number> = []
 
     // Go through each eligible combination and test
     for ( const rerollSet of rerollCombos ) {
         const { r:redRerolls, b:blackRerolls, w:whiteRerolls } = rerollSet
+
+        // BLACK and RED face sets
 
         // Create list of static/randomized faces of Red dice
         // Start with list of dice faces that are not being rerolled, extracting just the face info from each die
@@ -148,39 +160,141 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         // Add full set of randomized faces for each rerolling black die
         for (let i=0; i<blackRerolls; i++) { blackFaceSetList.push( BLACK_DIE.faces) }
 
-        // TODO: Implement later, for now treat as no White dice being rerolled
-        const whiteFaceSetList:Array<PowerDieFace[]> = whiteList.map( die => [die.face] )
 
-        // console.log("RED FACES")
-        // console.log(redFaceSetList)
-        // console.log("BLACK FACES")
-        // console.log(blackFaceSetList)
-        // console.log("WHITE FACES")
-        // console.log(whiteFaceSetList)
+        // WHITE face sets
 
-        const input:Array<PowerDieFace[]> = redFaceSetList.concat(blackFaceSetList).concat(whiteFaceSetList)
-        const outcomes = dieOutcomes(input)
-        const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes)
+        // As White Power Die faces can't be strictly ordered, need to find every combination of N faces to reroll and try them all
+        let whiteFaceSetListCombos: Array< Array< PowerDieFace[] > >= []
+        let indexCombinationList : Array< Array< number > > = []
 
-        // console.log("REROLL TRIAL SUCCESS:")
-        // console.log( successPcnt )
+        if (whiteList.length>0) {
+            // If none are being rerolled, just give current faces
+            if (whiteRerolls === 0) {
+                whiteFaceSetListCombos.push( whiteList.map( die => [die.face] ) )
+                indexCombinationList = [[]]
 
-        // Compare to previous best and update if better
-        if ( successPcnt > bestSuccessChance ) {
-            bestSuccessChance = successPcnt
-            bestSet = rerollSet
+            // If all are being rerolled, fill list with randomized faces
+            } else if ( whiteRerolls === whiteList.length ) {
+                const tempFaceSetList = []
+                for (let i=0; i<whiteRerolls; i++) { tempFaceSetList.push( WHITE_DIE.faces ) }
+                whiteFaceSetListCombos.push( tempFaceSetList )
+                indexCombinationList = [ whiteList.map( (e, i:number) => i) ]
+
+            // If somewhere in between, need to find the possible combos of static/re-rolled faces
+            } else {
+                const {length} = whiteList
+                const tempList : Array< Array<number> > = []
+
+                // Recursive function to generate combinations of indices
+                function findIndCombins ( startIndex:number, endIndex:number, choices:number ) : Array< Array<number> >  {
+                    // ERROR CHECKING:
+                    // If more to be choosen than indices available, give error
+                    if ( choices > endIndex-startIndex+1 ) {
+                        // TODO: Add better error handling
+                        console.error("ERROR: More choices to be selected than number of indices available")
+                    }
+
+                    // SPECIAL CASES:
+
+                    // If nothing to be chosen, list of indices is null set
+                    if ( choices===0 ) {
+                        return []
+                    }
+
+                    const indexArrays : Array< Array<number> > = []
+
+                    // If just one to choose, sets are just an array of a single index, one for each index in range
+                    if ( choices===1 ) {
+                        for (let i=startIndex; i<=endIndex; i++) {
+                            indexArrays.push( [i] )
+                        }
+                        return indexArrays
+                    }
+
+                    // If number to choose is equal to all the possible indices, is single set of all possible indices
+                    if ( choices === endIndex-startIndex+1 ) {
+                        let allIndices : Array<number> = []
+                        for (let i=startIndex; i<=endIndex; i++) {
+                            allIndices.push(i)                        
+                        }
+                        return [allIndices]
+
+                    }
+
+                    // STANDARD CASE:
+
+                    // Iterate through all possible first digits to be chosen
+                    // Iterate down from highest index, as will be appended to end of recursively found sequences
+                    for (let i = endIndex; i >= startIndex+choices-1; i--) {
+
+                        // Recursively find options for remaining part of combination
+                        const recurList = findIndCombins( startIndex, i-1, choices-1)
+                        
+                        // Merge lists with first digit
+                        recurList.forEach( (list:number[])=> {
+                            list.push(i)
+                            indexArrays.push(list)
+                        })
+                    }
+
+                    return indexArrays
+                }
+
+                // Find all the combinations of indices that will be rerolled
+                indexCombinationList = findIndCombins(0, length-1, whiteRerolls)
+
+                // Iterate through and create the Face Set Lists from the indices
+                whiteFaceSetListCombos = indexCombinationList.map( (list:Array<number>) : Array<Array<PowerDieFace>> => {
+                    const newFaceSetList : Array<Array<PowerDieFace>> = []
+                    for ( let i=0; i<whiteList.length; i++) {
+                        if (list.includes(i) ) {
+                            newFaceSetList.push( WHITE_DIE.faces )
+                        } else {
+                            newFaceSetList.push( [whiteList[i].face] )
+                        }
+                    }
+
+                    return newFaceSetList
+                })
+
+            }
+        }
+
+        // Get list of just Red/Black Face Set Lists
+        const inputRB:Array<PowerDieFace[]> = redFaceSetList.concat(blackFaceSetList)
+        
+
+        // If no White Face Set Lists, ignore and use only Red/Black
+        if (whiteFaceSetListCombos.length === 0) {        
+            console.log("CALLED")
+            const outcomes = dieOutcomes(inputRB)
+            const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes)
+
+            // Compare to previous best and update if better
+            if ( successPcnt > bestSuccessChance ) {
+                bestSuccessChance = successPcnt
+                bestSet = rerollSet
+            }
+        } else {
+            // If White, then iterate through list of combinations
+            for (let i=0; i<whiteFaceSetListCombos.length; i++) {
+                const fullInput = inputRB.concat( whiteFaceSetListCombos[i] )
+                const outcomes = dieOutcomes(fullInput)
+                const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes)
+                
+                // Compare to previous best and update if better
+                if ( successPcnt > bestSuccessChance ) {
+                    bestSuccessChance = successPcnt
+                    bestSet = rerollSet
+                    bestWhiteIndexset = indexCombinationList[i]
+                }
+            }
         }
     }
 
     console.log("BEST RESULT: "+ bestSuccessChance)
     console.log(bestSet)
 
-    // IGNORE: Possibly fallacious approach, could not guarantee correct results with such an algorithm
-    // Possibly able to refine in future
-    // // Simulate rerolling worst of each color and compare results
-    // // Best result is optimal reroll candidate, add it to list of dice to reroll
-    // // If more rerolls and dice available, recursively find best rerolls among remaining dice
-    // // - Remove the best dice to reroll from the list, then call on remaining list with n-1 rerolls
 
     // Recursively call with n-1 rerolls available and compare to check if better to reroll fewer dice
     // NOTE: Prioritizes the recursion result if returns equal chance of success
@@ -205,15 +319,23 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         idsToReroll.push( blackList[i].id )
     }
 
-    // TODO: Add White dice ids
+    // Add White dice ids starting from bottom of list
+    for ( let i=0; i<bestWhiteIndexset.length; i++ ) {
+        idsToReroll.push( whiteList[bestWhiteIndexset[i]].id )
+    }
 
     
     // Make sure number of returned dice don't exceed available rerolls
     if ( idsToReroll.length > rerolls ) {
         // TODO: Add better error handling
         console.error("ERROR: Rerolls suggested exceed number available")
+        console.error( `REROLLS: ${rerolls}` )
+        console.error("ID LIST GIVEN:")
+        console.error( idsToReroll )
+        console.error( `LENGTH: ${idsToReroll.length}` )
+        
     } 
-
+    
     const finalResults = {
         success: bestSuccessChance,
         ids: idsToReroll

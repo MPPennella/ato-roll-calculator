@@ -32,5 +32,7 @@ export type PowerDieTracker = {
     id: number,
     die: PowerDie,
     activeFaceSet: Array<PowerDieFace>,
-    component: React.JSX.Element
+    // component: React.JSX.Element,
+    activeFaceOptId: string,
+    highlight: Boolean,
 }
