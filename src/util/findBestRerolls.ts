@@ -17,7 +17,7 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
 // Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, rerolls available, and what faces were rolled on the dice
 export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : Array<number> {
     const numDice = diceInfo.length
-    console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}`)
+    console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
     if (numDice === 0 || rerolls === 0) return []
@@ -34,6 +34,7 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 
 // Recursive function to find results
 function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : {success: number, ids: Array<number>} {
+    
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
         
@@ -77,51 +78,59 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     }
 
     // Array to store the different combinations of rerolling dice we want to try
-    let rerollCombos:Array<RerollDice> = []
+    const rerollCombos:Array<RerollDice> = []
 
     // Find each different combination of dice to reroll with available number of rerolls
     const redMax : number = redList.length
     const blackMax : number = blackList.length
     const whiteMax : number = whiteList.length
 
+    // *r* counts rerolls being assigned to Red
     for (let r = 0; r <= rerolls; r++) {
-        let newReroll:RerollDice = { r:0, b:0, w:0 }
         
-        // If r exceeds available dice, terminate iteration
+        // If *r* exceeds available dice, not enough to use all rerolls: terminate current iteration
         if ( r > redMax ) continue
-
-        // Allocate *r* rerolls to Red
-        newReroll.r = r
 
         // Check if more to allocate and proceed to next color (black)
         let remAfterRed = rerolls - r
         if (remAfterRed > 0 ) {
+            // *b* counts rerolls being assigned to Black
             for ( let b = 0; b <= remAfterRed; b++ ) {
-                // If b exceeds available dice, terminate iteration
+                // If *b* exceeds available dice, not enough to use all rerolls: terminate current iteration
                 if ( b > blackMax ) continue
 
-                // Allocate *b* rerolls to Black
-                newReroll.b = b
-
                 // Check if more to allocate and proceed to next color (white)
-                let remAfterBlack = remAfterRed - b
-                if (remAfterBlack > 0 ) {                    
-                    // If w exceeds available dice, terminate iteration
-                    if ( remAfterBlack > whiteMax ) continue
+                let w = remAfterRed - b
 
-                    // Allocate *w* rerolls to White
-                    newReroll.w = remAfterBlack
+                // If *w* exceeds available dice, not enough to use all rerolls: terminate current iteration
+                if ( w > whiteMax ) continue
 
-                    rerollCombos.push(newReroll)
-                    
-                } else { rerollCombos.push(newReroll) }
+                // Allocate reroll counts
+                const newReroll:RerollDice = {
+                    r: r,
+                    b: b,
+                    w: w
+                }
+                
+                // Add to list of reroll combos to investigate
+                rerollCombos.push(newReroll)                    
             }
-        } else { rerollCombos.push(newReroll) }
+        } else { 
+            // Allocate reroll counts (only red are non-zero in this condition)
+            const newReroll:RerollDice = {
+                r: r,
+                b: 0,
+                w: 0
+            }
+
+            // Add to list of reroll combos to investigate
+            rerollCombos.push(newReroll) 
+        }
     }
 
-    // console.log("REROLLS AVAILBLE: "+rerolls)
-    // console.log("CALCULATED REROLL COMBOS:")
-    // console.log(rerollCombos)
+    console.log("REROLLS AVAILBLE: "+rerolls)
+    console.log("CALCULATED REROLL COMBOS:")
+    console.log(rerollCombos)
 
     // Check each combination to see how good the result is and compare
 
@@ -279,11 +288,11 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
                 if ( successPcnt > bestSuccessChance ) {
                     bestSuccessChance = successPcnt
                     bestSet = rerollSet
-                    console.log("WHITE DIE REROLL INFO")
-                    console.log(whiteFaceSetListCombos)
-                    console.log(whiteFaceSetListCombos.length)
-                    console.log(indexCombinationList)
-                    console.log(indexCombinationList.length)
+                    // console.log("WHITE DIE REROLL INFO")
+                    // console.log(whiteFaceSetListCombos)
+                    // console.log(whiteFaceSetListCombos.length)
+                    // console.log(indexCombinationList)
+                    // console.log(indexCombinationList.length)
                     bestWhiteIndexset = indexCombinationList[i]
                 }
             }
@@ -329,10 +338,13 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     if ( idsToReroll.length > rerolls ) {
         // TODO: Add better error handling
         console.error("ERROR: Rerolls suggested exceed number available")
+        console.error( `REROLLS: ${rerolls}` )
+        console.error("ID LIST GIVEN:")
         console.error( idsToReroll )
-        console.error(rerolls)
+        console.error( `LENGTH: ${idsToReroll.length}` )
+        
     } 
-
+    
     const finalResults = {
         success: bestSuccessChance,
         ids: idsToReroll
