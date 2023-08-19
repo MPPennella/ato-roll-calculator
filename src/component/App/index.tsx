@@ -200,8 +200,10 @@ function App() {
   
   // Construct props items for various sub-components
   const resultDisplayProps = {
-    successPcnt: thresholdCheck(atThreshold, breaks, outcomes),
-    average: averageResult(outcomes, breaks)
+    successPcntBef: thresholdCheck(atThreshold, breaks, outcomes),
+    averageBef: averageResult(outcomes, breaks),
+    successPcntAft: 0,
+    averageAft: 0,
   }
 
   const conditionProps = {
@@ -212,15 +214,16 @@ function App() {
   }
 
   const dieSelectProps = {
-    diceComponents: diceTracker.map( (dieTracker) => {return <ActiveDie
-      key = {dieTracker.id}
-      dieID = {dieTracker.id} 
-      color = {dieTracker.die.color}
-      highlight = {dieTracker.highlight}
-      faceOptions = {dieTracker.die.faces}
-      activeFace = {dieTracker.activeFaceOptId}
-      remove = {handleRemoveDie}
-      upActFace = {handleUpdateActiveFaces  }
+    diceComponents: diceTracker.map( (dieTracker) => {
+      return <ActiveDie
+        key = {dieTracker.id}
+        dieID = {dieTracker.id} 
+        color = {dieTracker.die.color}
+        highlight = {dieTracker.highlight}
+        faceOptions = {dieTracker.die.faces}
+        activeFace = {dieTracker.activeFaceOptId}
+        remove = {handleRemoveDie}
+        upActFace = {handleUpdateActiveFaces}
       />
     }),
     rerolls: rerolls,

@@ -23,7 +23,7 @@ function DieSelectPanel (
     // Determine if reroll button should be disabled
     // Should be disabled if no rerolls, or no dice, or if not all dice are set to a static face
     // TODO: Add checking for if not all dice are set to a static face
-    const isFindRerollDisabled = (rerolls && diceComponents.length) ? false : true
+    const isFindRerollDisabled = (!rerolls || !diceComponents.length) ? true : false
 
     return (
         <div className='DieSelectPanel'>
