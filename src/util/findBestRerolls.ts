@@ -23,8 +23,13 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
     const numDice = diceInfo.length
     console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
 
+    // Check if already succeeding, if so no need to reroll
+    const successCheck = thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) ))
+    console.log(successCheck)
+    if ( successCheck === 100 ) return {success: 100, ids: []}
+
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
-    if (numDice === 0 || rerolls === 0) return {success: 0, ids: []}
+    if ( numDice === 0 || rerolls === 0 ) return {success: 0, ids: []}
 
     // Otherwise call recursive function to calculate best reroll targets
     const result = findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo )
@@ -38,7 +43,7 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 
 // Recursive function to find results
 function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
-    console.log("REROLLS AVAILBLE: "+rerolls)
+    console.log("WITH REROLLS AVAILBLE: "+rerolls)
     
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
