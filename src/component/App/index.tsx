@@ -29,11 +29,11 @@ function App() {
 
   // State to track the various dice and a mutable reference to such
   const [diceTracker, setDiceTracker] = React.useState(Array<PowerDieTracker>)
-  const diceTrackRef:any = React.useRef()
+  const diceTrackRef = React.useRef() as React.MutableRefObject< PowerDieTracker[] >
   diceTrackRef.current = diceTracker
 
   // Holds the calculated outcomes for reference
-  const [outcomes, setOutcomes] = React.useState([{power:0, potential:0, dot:0}])
+  const [outcomes, setOutcomes] = React.useState([{power:0, potential:0, dot:0}] as PowerDieFace[])
 
   // Updates the states related to tracked dice objects
   function updateDice( newDiceTracker:Array<PowerDieTracker> ) : void {
@@ -197,12 +197,56 @@ function App() {
     setRerollSuccess(bestRerolls.success)
   }
 
+  // Find average result of all possible reroll scenarios
+  const diceList = diceTrackRef.current.map( (dieTracker) => {
+    return {
+      id: dieTracker.id, 
+      color: dieTracker.die.color, 
+      faces: dieTracker.die.faces 
+    }
+  })
+
+
+  let tempList = [] as DieInfo[][]
+  while (diceList.length > 0) {
+    const currDie = diceList.pop()
+    if (currDie === undefined) break
+
+    const {id, color, faces} = currDie
+    
+    let tempList2 = [] as DieInfo[][]
+    for ( const face of faces) {
+      // Create new DieInfo for each possible face on die
+      const newDieInfo: DieInfo = {id:id, color:color, face:face}
+
+      // Combine with each existing combination of faces
+      // For first die processed, just push its DieInfo
+      if (tempList.length === 0) {
+        tempList2.push( [newDieInfo] )
+        continue
+      }
+      // Once there are entries in the list, combine with each already there
+      for (const dieList of tempList ) {
+        tempList2.push( dieList.concat(newDieInfo))
+      }
+    }
+
+    // Update tempList with latest round
+    tempList = tempList2
+
+  }
+
+  // Store finalized list
+  const fullList = tempList
+
+  const chanceList = fullList.map( (list) => findBestRerolls(atThreshold, breaks, rerolls, list).success )
+  const rrResult = chanceList.reduce( (acc,val) => acc+val, 0)/chanceList.length
   
   // Construct props items for various sub-components
   const resultDisplayProps = {
     successPcntBef: thresholdCheck(atThreshold, breaks, outcomes),
     averageBef: averageResult(outcomes, breaks),
-    successPcntAft: 0,
+    successPcntAft: rrResult,
     averageAft: 0,
   }
 
