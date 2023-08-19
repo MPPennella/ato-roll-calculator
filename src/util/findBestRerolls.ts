@@ -38,6 +38,7 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 
 // Recursive function to find results
 function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
+    console.log("REROLLS AVAILBLE: "+rerolls)
     
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
@@ -133,7 +134,6 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         }
     }
 
-    console.log("REROLLS AVAILBLE: "+rerolls)
     console.log("CALCULATED REROLL COMBOS:")
     console.log(rerollCombos)
 
@@ -270,8 +270,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         
 
         // If no White Face Set Lists, ignore and use only Red/Black
-        if (whiteFaceSetListCombos.length === 0) {        
-            console.log("CALLED")
+        if (whiteFaceSetListCombos.length === 0) {  
             const outcomes = dieOutcomes(inputRB)
             const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes)
 

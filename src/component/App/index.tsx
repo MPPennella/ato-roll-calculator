@@ -25,6 +25,7 @@ function App() {
   const [atThreshold, setATThreshold] = React.useState(1)
   const [breaks, setBreaks] = React.useState(0)
   const [rerolls, setRerolls] = React.useState(0)
+  const [allRerollSuccess, setAllRerollSuccess] = React.useState(0)
   const [rerollSuccess, setRerollSuccess] = React.useState(0)
 
   // State to track the various dice and a mutable reference to such
@@ -197,57 +198,65 @@ function App() {
     setRerollSuccess(bestRerolls.success)
   }
 
-  // Find average result of all possible reroll scenarios
-  const diceList = diceTrackRef.current.map( (dieTracker) => {
-    return {
-      id: dieTracker.id, 
-      color: dieTracker.die.color, 
-      faces: dieTracker.die.faces 
-    }
-  })
-
-
-  let tempList = [] as DieInfo[][]
-  while (diceList.length > 0) {
-    const currDie = diceList.pop()
-    if (currDie === undefined) break
-
-    const {id, color, faces} = currDie
-    
-    let tempList2 = [] as DieInfo[][]
-    for ( const face of faces) {
-      // Create new DieInfo for each possible face on die
-      const newDieInfo: DieInfo = {id:id, color:color, face:face}
-
-      // Combine with each existing combination of faces
-      // For first die processed, just push its DieInfo
-      if (tempList.length === 0) {
-        tempList2.push( [newDieInfo] )
-        continue
+  function handleUpdateAllRerollDisplay () : void {
+    // Find average result of all possible reroll scenarios
+    const diceList = diceTrackRef.current.map( (dieTracker) => {
+      return {
+        id: dieTracker.id, 
+        color: dieTracker.die.color, 
+        faces: dieTracker.die.faces 
       }
-      // Once there are entries in the list, combine with each already there
-      for (const dieList of tempList ) {
-        tempList2.push( dieList.concat(newDieInfo))
+    })
+
+
+    let tempList = [] as DieInfo[][]
+    while (diceList.length > 0) {
+      const currDie = diceList.pop()
+      if (currDie === undefined) break
+
+      const {id, color, faces} = currDie
+      
+      let tempList2 = [] as DieInfo[][]
+      for ( const face of faces) {
+        // Create new DieInfo for each possible face on die
+        const newDieInfo: DieInfo = {id:id, color:color, face:face}
+
+        // Combine with each existing combination of faces
+        // For first die processed, just push its DieInfo
+        if (tempList.length === 0) {
+          tempList2.push( [newDieInfo] )
+          continue
+        }
+        // Once there are entries in the list, combine with each already there
+        for (const dieList of tempList ) {
+          tempList2.push( dieList.concat(newDieInfo))
+        }
       }
+
+      // Update tempList with latest round
+      tempList = tempList2
+
     }
 
-    // Update tempList with latest round
-    tempList = tempList2
+    // Store finalized list of die face combinations
+    const fullList = tempList
 
+    // Turn list of die combinations into chance of succeeding with rerolls
+    const chanceList = fullList.map( (list) => findBestRerolls(atThreshold, breaks, rerolls, list).success )
+
+    // Find average of chance of success
+    const rrResult = chanceList.reduce( (acc,val) => acc+val, 0)/chanceList.length
+
+    setAllRerollSuccess(rrResult)
   }
 
-  // Store finalized list
-  const fullList = tempList
-
-  const chanceList = fullList.map( (list) => findBestRerolls(atThreshold, breaks, rerolls, list).success )
-  const rrResult = chanceList.reduce( (acc,val) => acc+val, 0)/chanceList.length
-  
   // Construct props items for various sub-components
   const resultDisplayProps = {
     successPcntBef: thresholdCheck(atThreshold, breaks, outcomes),
     averageBef: averageResult(outcomes, breaks),
-    successPcntAft: rrResult,
+    successPcntAft: allRerollSuccess,
     averageAft: 0,
+    updateRerollDisplay: handleUpdateAllRerollDisplay
   }
 
   const conditionProps = {
