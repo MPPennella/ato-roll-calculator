@@ -25,6 +25,7 @@ function App() {
   const [atThreshold, setATThreshold] = React.useState(1)
   const [breaks, setBreaks] = React.useState(0)
   const [rerolls, setRerolls] = React.useState(0)
+  const [rerollSuccess, setRerollSuccess] = React.useState(0)
 
   // State to track the various dice and a mutable reference to such
   const [diceTracker, setDiceTracker] = React.useState(Array<PowerDieTracker>)
@@ -192,7 +193,8 @@ function App() {
     const bestRerolls = findBestRerolls( atThreshold, breaks, rerolls, diceInfo)
 
     // Update view with results
-    handleUpdateDieHighlights( bestRerolls )
+    handleUpdateDieHighlights( bestRerolls.ids )
+    setRerollSuccess(bestRerolls.success)
   }
 
   
@@ -222,6 +224,7 @@ function App() {
       />
     }),
     rerolls: rerolls,
+    rerollSuccess: rerollSuccess,
     addDie: handleAddNewDie,
     updateRerolls: handleUpdateRerolls,
     findRerolls: findBestRerollandUpdate

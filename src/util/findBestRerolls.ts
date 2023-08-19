@@ -7,6 +7,10 @@ import { DieInfo, PowerDieFace } from "../types/"
 // Data import
 import {RED_DIE, BLACK_DIE, WHITE_DIE} from '../data/PowerDiceData'
 
+type BestRerollReturn = {
+    success: number
+    ids: Array<number>
+}
 
 function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array<DieInfo>{
     return diceInfo.filter((die) => {
@@ -15,12 +19,12 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
 }
 
 // Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, rerolls available, and what faces were rolled on the dice
-export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : Array<number> {
+export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     const numDice = diceInfo.length
     console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
-    if (numDice === 0 || rerolls === 0) return []
+    if (numDice === 0 || rerolls === 0) return {success: 0, ids: []}
 
     // Otherwise call recursive function to calculate best reroll targets
     const result = findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo )
@@ -29,11 +33,11 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
     console.log(result.success.toFixed(3)+"%")
     console.log(result.ids)
 
-    return result.ids
+    return result
 }
 
 // Recursive function to find results
-function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : {success: number, ids: Array<number>} {
+function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
@@ -56,6 +60,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
     // - Look at each color of die and find the worst face among them to limit search
     // - This works for Red/Black dice as dice of those colors have a series of progressively strictly-better faces, 
     // - However, White dice have some faces that are only conditionally better depending on usable breaks
+
     // Separate out lists of dice by color
     const redList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "red"))
     const blackList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "black"))
