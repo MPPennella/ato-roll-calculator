@@ -12,6 +12,11 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
+### 1.3.1
+
+* Added display for chance of success with given die pool including use of rerolls
+* Added display for chance of success when using the highlighted rerolls
+
 ### 1.2.2
 
 * Finished implementation of White Power Dice in reroll calculations
