@@ -1,9 +1,11 @@
+body {
+  background-color: #ebece7;
+}
+
 .App {
   align-items: center;
   text-align: center;
-  background-color: #ebece7;
-  color: #010101;
-  height: 100vh;
+  min-height: 100%;
   width: 100vw;
 }
 
@@ -34,7 +36,7 @@ button:disabled {
 }
 
 @media (prefers-color-scheme: dark) {
-  .App {
+  body {
     background-color: #222727;
     color: #ebece7;
   }
