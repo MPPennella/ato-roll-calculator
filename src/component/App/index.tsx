@@ -198,8 +198,11 @@ function App() {
     setRerollSuccess(bestRerolls.success)
   }
 
+  // Find chance of success with given dice pool including using rerolls and update display
   function handleUpdateAllRerollDisplay () : void {
     // Find average result of all possible reroll scenarios
+
+    // Extract relevant info for dice
     const diceList = diceTrackRef.current.map( (dieTracker) => {
       return {
         id: dieTracker.id, 
@@ -209,6 +212,8 @@ function App() {
     })
 
 
+    // Brute force method, slows dramatically with higher numbers of dice O(6^n)
+    // Simply find all possible combinations of faces, then check success after rerolls for each
     let tempList = [] as DieInfo[][]
     while (diceList.length > 0) {
       const currDie = diceList.pop()
@@ -247,6 +252,20 @@ function App() {
     // Find average of chance of success
     const rrResult = chanceList.reduce( (acc,val) => acc+val, 0)/chanceList.length
 
+
+
+    // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
+
+    // Find count of each color of die
+    const redCount = diceList.filter((die) =>  die.color === "red" ? true : false )
+    const blackCount = diceList.filter((die) =>  die.color === "black" ? true : false )
+    const whiteCount = diceList.filter((die) =>  die.color === "white" ? true : false )
+
+    // Find unique combinations and weight of each combination
+
+
+
+    
     setAllRerollSuccess(rrResult)
   }
 
