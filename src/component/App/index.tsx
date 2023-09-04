@@ -212,7 +212,9 @@ function App() {
     })
 
 
-    // Brute force method, slows dramatically with higher numbers of dice O(6^n)
+    // Brute force method, slows dramatically with higher numbers of dice 
+    // Always O(6^n) [exponential]
+
     // Simply find all possible combinations of faces, then check success after rerolls for each
     let tempList = [] as DieInfo[][]
     while (diceList.length > 0) {
@@ -255,17 +257,74 @@ function App() {
 
 
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
+    // Worst case ~O(n^13), best O(n^4) [polynomial]
 
     // Find count of each color of die
-    const redCount = diceList.filter((die) =>  die.color === "red" ? true : false )
-    const blackCount = diceList.filter((die) =>  die.color === "black" ? true : false )
-    const whiteCount = diceList.filter((die) =>  die.color === "white" ? true : false )
+    const redCount:number = diceList.filter((die) =>  die.color === "red" ? true : false ).length
+    const blackCount:number = diceList.filter((die) =>  die.color === "black" ? true : false ).length
+    const whiteCount:number = diceList.filter((die) =>  die.color === "white" ? true : false ).length
 
     // Find unique combinations and weight of each combination
 
+    // Start with Red dice combinations
+    const DIE_SIDES = 6
+    const TEST_NUM = 6
+
+    // Min and Max values to combine
+    let minVal = 0
+    let maxVal = DIE_SIDES-1
+
+    let combinList = [] as Array< Array<number> >
+
+    // Initialize with array of all minimum faces
+    let currentCombination = []
+    
+    for (let i=0; i<TEST_NUM; i++) {
+      currentCombination[i] = minVal
+    }
+    const maxIndex = currentCombination.length - 1
+    combinList.push([...currentCombination])
+    // console.log(currentCombination)
+
+    while (currentCombination[maxIndex] < maxVal) {
+      
+      for (let v=minVal+1; v<=maxVal; v++) {
+        currentCombination[0] = v
+        combinList.push([...currentCombination])
+        // console.log(currentCombination)
+
+        if ( v === maxVal ) {
+          for (let i=1; i<= maxIndex; i++) {
+            if (currentCombination[i] < maxVal ) {
+              minVal = currentCombination[i] + 1
+
+              for (let j=0; j<=i; j++) {
+                currentCombination[j]=minVal
+              }
+
+              combinList.push([...currentCombination])
+              // console.log(currentCombination)
+              
+              if (minVal !== maxVal) break
+            }
+          }
+        }
+      }     
+    }
+
+    console.log(combinList)
+    console.log(combinList.length)
 
 
     
+    // Turn list of die combinations and weights into chance of succeeding with rerolls
+
+
+    // Find average of chance of success
+
+
+
+
     setAllRerollSuccess(rrResult)
   }
 
