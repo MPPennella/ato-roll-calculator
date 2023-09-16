@@ -14,6 +14,7 @@ import thresholdCheck from '../../util/thresholdCheck';
 import averageResult from '../../util/averageResult';
 import sortDieColors from '../../util/sortDieColors';
 import findBestRerolls from '../../util/findBestRerolls';
+import findCombinations from '../../util/findCombinations';
 
 
 // Main component which controls all app function and tracks necessary states
@@ -198,54 +199,22 @@ function App() {
     setRerollSuccess(bestRerolls.success)
   }
 
+  // Find chance of success with given dice pool including using rerolls and update display
   function handleUpdateAllRerollDisplay () : void {
     // Find average result of all possible reroll scenarios
-    const diceList = diceTrackRef.current.map( (dieTracker) => {
-      return {
-        id: dieTracker.id, 
-        color: dieTracker.die.color, 
-        faces: dieTracker.die.faces 
-      }
-    })
 
+    // Tracker for calc time
+    const timeStart = (new Date()).valueOf()
 
-    let tempList = [] as DieInfo[][]
-    while (diceList.length > 0) {
-      const currDie = diceList.pop()
-      if (currDie === undefined) break
+    // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
+    const rrResult:number = findCombinations(atThreshold, breaks, rerolls, diceTrackRef.current)
 
-      const {id, color, faces} = currDie
-      
-      let tempList2 = [] as DieInfo[][]
-      for ( const face of faces) {
-        // Create new DieInfo for each possible face on die
-        const newDieInfo: DieInfo = {id:id, color:color, face:face}
+    const timeEnd = (new Date()).valueOf()
+    const totalTime = timeEnd - timeStart
 
-        // Combine with each existing combination of faces
-        // For first die processed, just push its DieInfo
-        if (tempList.length === 0) {
-          tempList2.push( [newDieInfo] )
-          continue
-        }
-        // Once there are entries in the list, combine with each already there
-        for (const dieList of tempList ) {
-          tempList2.push( dieList.concat(newDieInfo))
-        }
-      }
-
-      // Update tempList with latest round
-      tempList = tempList2
-
-    }
-
-    // Store finalized list of die face combinations
-    const fullList = tempList
-
-    // Turn list of die combinations into chance of succeeding with rerolls
-    const chanceList = fullList.map( (list) => findBestRerolls(atThreshold, breaks, rerolls, list).success )
-
-    // Find average of chance of success
-    const rrResult = chanceList.reduce( (acc,val) => acc+val, 0)/chanceList.length
+    console.log("-------------")
+    // console.log(`Original method: ${naiveTime}ms`)
+    console.log(`REROLL CALC TIME: ${totalTime}ms`)
 
     setAllRerollSuccess(rrResult)
   }

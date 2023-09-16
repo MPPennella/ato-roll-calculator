@@ -8,7 +8,7 @@ import { DieInfo, PowerDieFace } from "../types/"
 import {RED_DIE, BLACK_DIE, WHITE_DIE} from '../data/PowerDiceData'
 
 type BestRerollReturn = {
-    success: number
+    success: number,
     ids: Array<number>
 }
 
@@ -18,15 +18,26 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
     })
 }
 
-// Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, rerolls available, and what faces were rolled on the dice
+/**
+ * Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, 
+ * rerolls available, and what faces were rolled on the dice
+ * 
+ * @param thresholdValue Integer number of target AT threshold to hit
+ * @param breakValue Integer number of Break Tokens available
+ * @param rerolls Integer number of Power Die rerolls available
+ * @param diceInfo Array of DieInfo of dice/faces that are candidates for rerolls
+ * @returns `{ success: number, ids: Array<number>}` Object with `success` (as percent) and `ids` containing array of id numbers of best set of dice to reroll
+ */
 export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     const numDice = diceInfo.length
-    console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
-
+    
     // Check if already succeeding, if so no need to reroll
-    const successCheck = thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) ))
-    console.log(successCheck)
-    if ( successCheck === 100 ) return {success: 100, ids: []}
+    const successCheck:boolean = ( 100 === thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) )) )
+
+    // console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
+    // console.log(`ALREADY PASSING: ${(successCheck)}`)
+
+    if ( successCheck ) return {success: 100, ids: []}
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
     if ( numDice === 0 || rerolls === 0 ) return {success: 0, ids: []}
@@ -34,16 +45,16 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
     // Otherwise call recursive function to calculate best reroll targets
     const result = findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo )
 
-    console.log("OVERALL BEST:")
-    console.log(result.success.toFixed(3)+"%")
-    console.log(result.ids)
+    // console.log("OVERALL BEST:")
+    // console.log(result.success.toFixed(3)+"%")
+    // console.log(result.ids)
 
     return result
 }
 
 // Recursive function to find results
 function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
-    console.log("WITH REROLLS AVAILBLE: "+rerolls)
+    // console.log("WITH REROLLS AVAILBLE: "+rerolls)
     
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
@@ -139,8 +150,8 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         }
     }
 
-    console.log("CALCULATED REROLL COMBOS:")
-    console.log(rerollCombos)
+    // console.log("CALCULATED REROLL COMBOS:")
+    // console.log(rerollCombos)
 
     // Check each combination to see how good the result is and compare
 
@@ -301,8 +312,8 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         }
     }
 
-    console.log("BEST RESULT: "+ bestSuccessChance)
-    console.log(bestSet)
+    // console.log("BEST RESULT: "+ bestSuccessChance)
+    // console.log(bestSet)
 
 
     // Recursively call with n-1 rerolls available and compare to check if better to reroll fewer dice
