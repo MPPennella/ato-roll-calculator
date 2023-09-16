@@ -8,7 +8,7 @@ import { DieInfo, PowerDieFace } from "../types/"
 import {RED_DIE, BLACK_DIE, WHITE_DIE} from '../data/PowerDiceData'
 
 type BestRerollReturn = {
-    success: number
+    success: number,
     ids: Array<number>
 }
 
@@ -18,7 +18,16 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
     })
 }
 
-// Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, rerolls available, and what faces were rolled on the dice
+/**
+ * Finds which specific Power Dice are best to reroll in a given situation based on AT Threshold to hit, breaks available, 
+ * rerolls available, and what faces were rolled on the dice
+ * 
+ * @param thresholdValue Integer number of target AT threshold to hit
+ * @param breakValue Integer number of Break Tokens available
+ * @param rerolls Integer number of Power Die rerolls available
+ * @param diceInfo Array of DieInfo of dice/faces that are candidates for rerolls
+ * @returns `{ success: number, ids: Array<number>}` Object with `success` (as percent) and `ids` containing array of id numbers of best set of dice to reroll
+ */
 export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     const numDice = diceInfo.length
     console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)

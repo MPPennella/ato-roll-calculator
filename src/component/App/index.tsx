@@ -258,8 +258,7 @@ function App() {
 
 
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
-    findCombinations(diceTrackRef.current)
-
+    findCombinations(atThreshold, breaks, rerolls, diceTrackRef.current)
 
     setAllRerollSuccess(rrResult)
   }
