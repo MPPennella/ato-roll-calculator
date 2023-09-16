@@ -203,62 +203,71 @@ function App() {
   function handleUpdateAllRerollDisplay () : void {
     // Find average result of all possible reroll scenarios
 
-    // Extract relevant info for dice
-    const diceList = diceTrackRef.current.map( (dieTracker) => {
-      return {
-        id: dieTracker.id, 
-        color: dieTracker.die.color, 
-        faces: dieTracker.die.faces 
-      }
-    })
+    const naiveTimeStart = (new Date()).valueOf()
+    // // Extract relevant info for dice
+    // const diceList = diceTrackRef.current.map( (dieTracker) => {
+    //   return {
+    //     id: dieTracker.id, 
+    //     color: dieTracker.die.color, 
+    //     faces: dieTracker.die.faces 
+    //   }
+    // })
 
 
-    // Brute force method, slows dramatically with higher numbers of dice 
-    // Always O(6^n) [exponential]
+    // // Brute force method, slows dramatically with higher numbers of dice 
+    // // Always O(6^n) [exponential]
 
-    // Simply find all possible combinations of faces, then check success after rerolls for each
-    let tempList = [] as DieInfo[][]
-    while (diceList.length > 0) {
-      const currDie = diceList.pop()
-      if (currDie === undefined) break
+    // // Simply find all possible combinations of faces, then check success after rerolls for each
+    // let tempList = [] as DieInfo[][]
+    // while (diceList.length > 0) {
+    //   const currDie = diceList.pop()
+    //   if (currDie === undefined) break
 
-      const {id, color, faces} = currDie
+    //   const {id, color, faces} = currDie
       
-      let tempList2 = [] as DieInfo[][]
-      for ( const face of faces) {
-        // Create new DieInfo for each possible face on die
-        const newDieInfo: DieInfo = {id:id, color:color, face:face}
+    //   let tempList2 = [] as DieInfo[][]
+    //   for ( const face of faces) {
+    //     // Create new DieInfo for each possible face on die
+    //     const newDieInfo: DieInfo = {id:id, color:color, face:face}
 
-        // Combine with each existing combination of faces
-        // For first die processed, just push its DieInfo
-        if (tempList.length === 0) {
-          tempList2.push( [newDieInfo] )
-          continue
-        }
-        // Once there are entries in the list, combine with each already there
-        for (const dieList of tempList ) {
-          tempList2.push( dieList.concat(newDieInfo))
-        }
-      }
+    //     // Combine with each existing combination of faces
+    //     // For first die processed, just push its DieInfo
+    //     if (tempList.length === 0) {
+    //       tempList2.push( [newDieInfo] )
+    //       continue
+    //     }
+    //     // Once there are entries in the list, combine with each already there
+    //     for (const dieList of tempList ) {
+    //       tempList2.push( dieList.concat(newDieInfo))
+    //     }
+    //   }
 
-      // Update tempList with latest round
-      tempList = tempList2
+    //   // Update tempList with latest round
+    //   tempList = tempList2
 
-    }
+    // }
 
-    // Store finalized list of die face combinations
-    const fullList = tempList
+    // // Store finalized list of die face combinations
+    // const fullList = tempList
 
-    // Turn list of die combinations into chance of succeeding with rerolls
-    const chanceList = fullList.map( (list) => findBestRerolls(atThreshold, breaks, rerolls, list).success )
+    // // Turn list of die combinations into chance of succeeding with rerolls
+    // const chanceList = fullList.map( (list) => findBestRerolls(atThreshold, breaks, rerolls, list).success )
 
-    // Find average of chance of success
-    const rrResult = chanceList.reduce( (acc,val) => acc+val, 0)/chanceList.length
+    // // Find average of chance of success
+    // const rrResult = chanceList.reduce( (acc,val) => acc+val, 0)/chanceList.length
 
+    const naiveTimeEnd = (new Date()).valueOf()
+    const naiveTime = naiveTimeEnd - naiveTimeStart
 
-
+    const altTimeStart = (new Date()).valueOf()
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
-    findCombinations(atThreshold, breaks, rerolls, diceTrackRef.current)
+    const rrResult:number = findCombinations(atThreshold, breaks, rerolls, diceTrackRef.current)
+    const altTimeEnd = (new Date()).valueOf()
+    const altTime = altTimeEnd - altTimeStart
+
+    console.log("-------------")
+    console.log(`Original method: ${naiveTime}ms`)
+    console.log(`Alternate method: ${altTime}ms`)
 
     setAllRerollSuccess(rrResult)
   }

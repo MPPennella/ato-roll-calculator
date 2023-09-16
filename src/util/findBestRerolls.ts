@@ -52,7 +52,7 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 
 // Recursive function to find results
 function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
-    console.log("WITH REROLLS AVAILBLE: "+rerolls)
+    // console.log("WITH REROLLS AVAILBLE: "+rerolls)
     
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
@@ -148,8 +148,8 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         }
     }
 
-    console.log("CALCULATED REROLL COMBOS:")
-    console.log(rerollCombos)
+    // console.log("CALCULATED REROLL COMBOS:")
+    // console.log(rerollCombos)
 
     // Check each combination to see how good the result is and compare
 
@@ -310,8 +310,8 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         }
     }
 
-    console.log("BEST RESULT: "+ bestSuccessChance)
-    console.log(bestSet)
+    // console.log("BEST RESULT: "+ bestSuccessChance)
+    // console.log(bestSet)
 
 
     // Recursively call with n-1 rerolls available and compare to check if better to reroll fewer dice

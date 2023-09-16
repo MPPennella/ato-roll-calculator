@@ -21,7 +21,11 @@ type CombinationMap = {
  */
 // Find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
 //
-// Worst case ~O(n^13), best O(n^4) [polynomial]
+// Worst case ~O(n^15) [polynomial] if a mix of all three colors of dice are used
+// Best case O(n^5) [polynomial] if only a single color of dice is used
+// 
+// Theoretical worst case ~O(n^13) [polynomial] when a mix of all three colors of dice are used, pending implementation of duplicate-face accounting
+// Theoretical best  case O(n^4) [polynomial] if using only Red or only Black dice, pending implementation of duplicate-face accounting
 export default function findCombinations (atThreshold:number, breaks:number, rerolls:number, diceTrackRef : Array< PowerDieTracker >) : number {
     const diceList = diceTrackRef.map( (dieTracker) => {
         return {
@@ -38,24 +42,155 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
     
     // Find unique combinations and weight of each combination
 
-    // Start with Red dice combinations
+    // All dice are six-sided
     const DIE_SIDES = 6
-    const TEST_NUM = redCount //5
 
-    const totalWeight = Math.pow(DIE_SIDES, TEST_NUM)
+    const totalWeight = Math.pow(DIE_SIDES, redCount) * Math.pow(DIE_SIDES, blackCount) * Math.pow(DIE_SIDES, whiteCount)
     
-    // Min and Max values to combine
-    let minVal = 0
-    let maxVal = DIE_SIDES-1
+    // Generate lists separately for each color of die
+    const redList : CombinationMap[] = generateCombinationList(redCount)
+    const blackList : CombinationMap[] = generateCombinationList(blackCount)
+    const whiteList : CombinationMap[] = generateCombinationList(whiteCount)
 
-    let combinList = [] as Array<CombinationMap>
+    // Then combine lists together to create master list
+    const combinList = redList
+
+    const combinLists = {
+        red: redList,
+        black: blackList,
+        white: whiteList
+    }
+    
+    let weightSum:number = redList.reduce( (p,cur) => p + cur.weight, 0) 
+        * blackList.reduce( (p,cur) => p + cur.weight, 0) 
+        * whiteList.reduce( (p,cur) => p + cur.weight, 0)
+    //combinList.reduce( (p,cur) => p + cur.weight, 0)
+    
+    console.log("------------")
+    console.log(blackCount)
+    console.log(blackList)
+    // console.log(combinList)
+    console.log(`Combinations: ${combinList.length}`)
+    console.log(`Weight Sum: ${weightSum}`)
+    console.log(`Theoretical: ${totalWeight}`)
+    console.log("------------")
+
+    
+    // Turn list of die combinations and weights into chance of succeeding with rerolls
+
+    // Combine the three lists
+    const weightedChanceList : Array<number> = []
+
+    for (let rMap of combinLists.red) {
+        const rDice:Array<DieInfo> = rMap.combination.map( (number, i) => {
+            return {
+            id: i,
+            color: "red",
+            face: RED_DIE.faces[number]
+            }
+        })
+
+        for (let bMap of combinLists.black) {
+            const bDice:Array<DieInfo> = bMap.combination.map( (number, j) => {
+                return {
+                id: j+10000,
+                color: "black",
+                face: BLACK_DIE.faces[number]
+                }
+            })
+    
+
+            for (let wMap of combinLists.white) {
+
+                const wDice:Array<DieInfo> = wMap.combination.map( (number, k) => {
+                    return {
+                    id: k+100000000,
+                    color: "white",
+                    face: WHITE_DIE.faces[number]
+                    }
+                })
+
+                weightedChanceList.push( findBestRerolls(atThreshold, breaks, rerolls, rDice.concat(bDice).concat(wDice) ).success * (rMap.weight*bMap.weight*wMap.weight ) )
+
+            }
+        }
+    }
+
+    // Find average of chance of success
+    const rrResult = weightedChanceList.reduce( (acc,val) => acc+val, 0) / totalWeight
+
+    console.log("WEIGHTED AVG")
+    console.log(rrResult)
+
+    return rrResult
+}
+
+/**
+ * For a given number of dice, generates all the possible combinations of faces of those dice and the weight of those combinations appearing when rolled
+ * 
+ * @param dieCount Integer number of dice of the same color
+ * @param color Optional: accepts strings `"red"`, `"black"`, and `"white"`. Used to speed up processing of dice with repeated faces (not yet implemented)
+ * @returns `CombinationMap[]` with each map object containing a unique combination and the weight of that combination's appearance.
+ */
+function generateCombinationList(dieCount:number, color?:string) : Array<CombinationMap> {
+	// Start with Red dice combinations
+	    
+    let combinList : Array<CombinationMap> = [] as Array<CombinationMap>
+
+    // Min and Max values to combine
+    // Die faces are indexed from 0 to 5
+    let minVal:number = 0
+    const maxVal = 5
+
+    // Initialize with array of length equal to die count with all minimized faces
+    let currentCombination:Array<number> = []
+    
+    for (let i=0; i<dieCount; i++) {
+        currentCombination[i] = minVal
+    }
+    const maxIndex = currentCombination.length - 1
+    addCombination([...currentCombination])
+
+    
+    // Stop when last value is maxed - that means whole array is maxed and all combinations are found
+    while (currentCombination[maxIndex] < maxVal) {
+    
+        // Increment the value in the first index until it reaches max
+        for (let v=minVal+1; v<=maxVal; v++) {
+            currentCombination[0] = v
+            addCombination([...currentCombination])
+            
+            // When value reaches max, find first non-maxed index, increment it, then set all preceding indices to that new value
+            if ( v === maxVal ) {
+                for (let i=1; i<= maxIndex; i++) {
+                    if (currentCombination[i] < maxVal ) {
+                    minVal = currentCombination[i] + 1
+
+                    for (let j=0; j<=i; j++) {
+                        currentCombination[j]=minVal
+                    }
+
+                    addCombination([...currentCombination])
+                    
+                    // If didn't max out value, break out to go back to incrementing first index
+                    // Otherwise, need to go another iteration to find next low value
+                    if (minVal !== maxVal) break
+                    }
+                }
+            }
+        }     
+    }
+
+    return combinList
+
+
 
     /**
      * Function to find correct weighting for a particular combination and the resulting `CombinationMap` to the `combinList` array
      * 
      * @param combiToAdd Array containing a specific combination to be added
      */
-    function addCombination( combiToAdd:Array<number>):void {
+     function addCombination( combiToAdd:Array<number>):void {
         const size = combiToAdd.length
         const maxIndex = size-1
 
@@ -112,77 +247,5 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
         }
         combinList.push(newCombi)
     }
-    
-    // Initialize with array of all minimum faces
-    let currentCombination:Array<number> = []
-    
-    for (let i=0; i<TEST_NUM; i++) {
-        currentCombination[i] = minVal
-    }
-    const maxIndex = currentCombination.length - 1
-    addCombination([...currentCombination])
 
-    
-    // Stop when last value is maxed - that means whole array is maxed and all combinations are found
-    while (currentCombination[maxIndex] < maxVal) {
-    
-        // Increment the value in the first index until it reaches max
-        for (let v=minVal+1; v<=maxVal; v++) {
-            currentCombination[0] = v
-            addCombination([...currentCombination])
-            
-            // When value reaches max, find first non-maxed index, increment it, then set all preceding indices to that new value
-            if ( v === maxVal ) {
-                for (let i=1; i<= maxIndex; i++) {
-                    if (currentCombination[i] < maxVal ) {
-                    minVal = currentCombination[i] + 1
-
-                    for (let j=0; j<=i; j++) {
-                        currentCombination[j]=minVal
-                    }
-
-                    addCombination([...currentCombination])
-                    
-                    // If didn't max out value, break out to go back to incrementing first index
-                    // Otherwise, need to go another iteration to find next low value
-                    if (minVal !== maxVal) break
-                    }
-                }
-            }
-        }     
-    }
-    
-    let weightSum:number = combinList.reduce( (p,cur) => p + cur.weight, 0)
-    
-    console.log("------------")
-    // console.log(combinList)
-    console.log(`Combinations: ${combinList.length}`)
-    console.log(`Weight Sum: ${weightSum}`)
-    console.log(`Theoretical: ${totalWeight}`)
-    console.log("------------")
-
-    
-    // Turn list of die combinations and weights into chance of succeeding with rerolls
-
-    const weightedChanceList = combinList.map( (combinMap) => {
-        const dice:Array<DieInfo> = combinMap.combination.map( (number, i) => {
-            return {
-            id: i,
-            color: "red",
-            face: RED_DIE.faces[number]
-            }
-        })
-        
-        return findBestRerolls(atThreshold, breaks, rerolls, dice).success * combinMap.weight 
-    })
-
-    console.log(weightedChanceList)
-
-    // Find average of chance of success
-    const rrResult = weightedChanceList.reduce( (acc,val) => acc+val, 0) / totalWeight
-
-    console.log("WEIGHTED AVG")
-    console.log(rrResult)
-
-    return rrResult
 }
