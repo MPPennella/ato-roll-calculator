@@ -27,11 +27,12 @@ type CombinationMap = {
 // Theoretical worst case ~O(n^13) [polynomial] when a mix of all three colors of dice are used, pending implementation of duplicate-face accounting
 // Theoretical best  case O(n^4) [polynomial] if using only Red or only Black dice, pending implementation of duplicate-face accounting
 export default function findCombinations (atThreshold:number, breaks:number, rerolls:number, diceTrackRef : Array< PowerDieTracker >) : number {
+    
+    // Extract relevant info for dice
     const diceList = diceTrackRef.map( (dieTracker) => {
         return {
             id: dieTracker.id, 
             color: dieTracker.die.color, 
-            // faces: dieTracker.die.faces 
         }
     })
 
@@ -52,36 +53,17 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
     const blackList : CombinationMap[] = generateCombinationList(blackCount)
     const whiteList : CombinationMap[] = generateCombinationList(whiteCount)
 
-    // Then combine lists together to create master list
-    const combinList = redList
-
-    const combinLists = {
-        red: redList,
-        black: blackList,
-        white: whiteList
-    }
     
     let weightSum:number = redList.reduce( (p,cur) => p + cur.weight, 0) 
         * blackList.reduce( (p,cur) => p + cur.weight, 0) 
         * whiteList.reduce( (p,cur) => p + cur.weight, 0)
-    //combinList.reduce( (p,cur) => p + cur.weight, 0)
     
-    console.log("------------")
-    console.log(blackCount)
-    console.log(blackList)
-    // console.log(combinList)
-    console.log(`Combinations: ${combinList.length}`)
-    console.log(`Weight Sum: ${weightSum}`)
-    console.log(`Theoretical: ${totalWeight}`)
-    console.log("------------")
+   
+    // Then combine lists together to create master list, then turn list of die combinations and weights into chance of succeeding with rerolls
 
-    
-    // Turn list of die combinations and weights into chance of succeeding with rerolls
-
-    // Combine the three lists
     const weightedChanceList : Array<number> = []
 
-    for (let rMap of combinLists.red) {
+    for (let rMap of redList) {
         const rDice:Array<DieInfo> = rMap.combination.map( (number, i) => {
             return {
             id: i,
@@ -90,7 +72,7 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
             }
         })
 
-        for (let bMap of combinLists.black) {
+        for (let bMap of blackList) {
             const bDice:Array<DieInfo> = bMap.combination.map( (number, j) => {
                 return {
                 id: j+10000,
@@ -100,7 +82,7 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
             })
     
 
-            for (let wMap of combinLists.white) {
+            for (let wMap of whiteList) {
 
                 const wDice:Array<DieInfo> = wMap.combination.map( (number, k) => {
                     return {
@@ -119,8 +101,12 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
     // Find average of chance of success
     const rrResult = weightedChanceList.reduce( (acc,val) => acc+val, 0) / totalWeight
 
-    console.log("WEIGHTED AVG")
-    console.log(rrResult)
+    console.log("------------")
+    console.log(`COMBINATIONS: ${ redList.length*blackList.length*whiteList.length }`)
+    console.log(`WEIGHT SUM: ${weightSum}`)
+    // console.log(`THEORETICAL WEIGHT: ${totalWeight}`)  
+    console.log(`WEIGHTED AVG: ${ rrResult}`)
+    console.log("------------")
 
     return rrResult
 }

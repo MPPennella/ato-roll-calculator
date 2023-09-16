@@ -30,12 +30,14 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
  */
 export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     const numDice = diceInfo.length
-    console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
-
+    
     // Check if already succeeding, if so no need to reroll
-    const successCheck = thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) ))
-    console.log(successCheck)
-    if ( successCheck === 100 ) return {success: 100, ids: []}
+    const successCheck:boolean = ( 100 === thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) )) )
+
+    // console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
+    // console.log(`ALREADY PASSING: ${(successCheck)}`)
+
+    if ( successCheck ) return {success: 100, ids: []}
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
     if ( numDice === 0 || rerolls === 0 ) return {success: 0, ids: []}
@@ -43,9 +45,9 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
     // Otherwise call recursive function to calculate best reroll targets
     const result = findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo )
 
-    console.log("OVERALL BEST:")
-    console.log(result.success.toFixed(3)+"%")
-    console.log(result.ids)
+    // console.log("OVERALL BEST:")
+    // console.log(result.success.toFixed(3)+"%")
+    // console.log(result.ids)
 
     return result
 }
