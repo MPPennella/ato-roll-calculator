@@ -12,6 +12,10 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
+### 1.3.2
+
+* Switched method of calculating overall chance with rerolls to be much more efficient, especially when using only or mostly one color of dice
+
 ### 1.3.1
 
 * Added display for chance of success with given die pool including use of rerolls
