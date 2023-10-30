@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useCookies } from 'react-cookie';
 import './App.css';
 // Components
 import ActiveDie from '../ActiveDie';
 import ConditionSelectPanel from '../ConditionSelectPanel';
 import DieSelectPanel from '../DieSelectPanel';
 import ResultDisplayPanel from '../ResultDisplayPanel';
+import CycleSelector from '../CycleSelector'
 // Types
 import { DieInfo, PowerDie, PowerDieFace, PowerDieTracker } from '../../types';
 // Data and processing utilities
@@ -21,6 +23,9 @@ import findCombinations from '../../util/findCombinations';
 function App() {
 
   // State variables
+
+  // State to track the Cycle
+  const [cookies, setCookie] = useCookies(['cycle'])
 
   // State to track the target AT Threshold and Breaks available
   const [atThreshold, setATThreshold] = React.useState(1)
@@ -219,6 +224,11 @@ function App() {
     setAllRerollSuccess(rrResult)
   }
 
+  // Update active Cycle and save as cookie
+  function handleUpdateCycle (cycleNumber:number) : void {
+    setCookie("cycle", cycleNumber)
+  }
+
   // Construct props items for various sub-components
   const resultDisplayProps = {
     successPcntBef: thresholdCheck(atThreshold, breaks, outcomes),
@@ -255,6 +265,17 @@ function App() {
     findRerolls: findBestRerollandUpdate
   }
 
+  const cycleProps = {
+    cycle: cookies.cycle as number,
+    cycleUpdater: handleUpdateCycle
+  }
+
+  // Check if valid Cycle cookie on first render, if not default to Cycle 1
+  useEffect(()=>{
+    const cycle = cookies.cycle
+    if (cycle === undefined || isNaN(cycle) || cycle<1 || cycle>5 ) setCookie("cycle",1)
+  },[])
+
   // Create display components and pass props
   return (
     <div className="App">
@@ -263,6 +284,7 @@ function App() {
         <ResultDisplayPanel {...resultDisplayProps} />
         <ConditionSelectPanel {...conditionProps} />
         <DieSelectPanel {...dieSelectProps} />
+        <CycleSelector {...cycleProps}  />
       </div>
     </div>
   );
