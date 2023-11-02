@@ -185,11 +185,11 @@ function App() {
       }) 
     }
 
-    const bestRerolls = findBestRerolls( atThreshold, breaks, rerolls, diceInfo)
+    const bestRerolls = findBestRerolls( atThreshold, breaks+hope, rerolls+blacks, diceInfo)
 
     // Update view with results
     handleUpdateDieHighlights( bestRerolls.ids )
-    setRerollSuccess(bestRerolls.success)
+    setRerollSuccess( bestRerolls.success )
   }
 
   // Find chance of success with given dice pool including using rerolls and update display
@@ -200,7 +200,7 @@ function App() {
     const timeStart = (new Date()).valueOf()
 
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
-    const rrResult:number = findCombinations(atThreshold, breaks, rerolls, diceTrackRef.current)
+    const rrResult:number = findCombinations(atThreshold, breaks+hope, rerolls+blacks, diceTrackRef.current)
 
     const timeEnd = (new Date()).valueOf()
     const totalTime = timeEnd - timeStart
@@ -219,8 +219,8 @@ function App() {
 
   // Construct props items for various sub-components
   const resultDisplayProps = {
-    successPcntBef: thresholdCheck(atThreshold, breaks, outcomes),
-    averageBef: averageResult(outcomes, breaks),
+    successPcntBef: thresholdCheck(atThreshold, breaks+hope, outcomes),
+    averageBef: averageResult(outcomes, breaks+hope),
     successPcntAft: allRerollSuccess,
     averageAft: 0,
     updateRerollDisplay: handleUpdateAllRerollDisplay
