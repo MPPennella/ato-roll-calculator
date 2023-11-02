@@ -26,11 +26,14 @@ function App() {
 
   // State to track the Cycle
   const [cookies, setCookie] = useCookies(['cycle'])
+  const cycle = cookies.cycle as number
 
   // State to track the target AT Threshold and Breaks available
   const [atThreshold, setATThreshold] = React.useState(1)
   const [breaks, setBreaks] = React.useState(0)
+  const [hope, setHope] = React.useState(0)
   const [rerolls, setRerolls] = React.useState(0)
+  const [blacks, setBlacks] = React.useState(0)
   const [allRerollSuccess, setAllRerollSuccess] = React.useState(0)
   const [rerollSuccess, setRerollSuccess] = React.useState(0)
 
@@ -68,21 +71,6 @@ function App() {
 
 
   // CALLBACKS
-
-  // Callback to update AT state
-  function handleUpdateAT( newAT:number ) : void {
-    setATThreshold(newAT)
-  }
-
-  // Callback to update Break state
-  function handleUpdateBreaks( newBreaks:number ) : void {
-    setBreaks(newBreaks)
-  }
-
-  // Callback to update Reroll state
-  function handleUpdateRerolls( newRerolls:number ) : void {
-    setRerolls(newRerolls)
-  }
 
   // Adds a new die to the pool, handling input of which type (color) to add
   function handleAddNewDie( color:string ) : void {
@@ -239,10 +227,17 @@ function App() {
   }
 
   const conditionProps = {
+    cycle: cycle,
     atThreshold: atThreshold,
     breaks: breaks,
-    upAT: handleUpdateAT,
-    upBr: handleUpdateBreaks
+    hope: hope,
+    rerolls: rerolls,
+    black: blacks,
+    updateAT: setATThreshold,
+    updateBreaks: setBreaks,
+    updateHope: setHope,
+    updateRerolls: setRerolls,
+    updateBlack: setBlacks
   }
 
   const dieSelectProps = {
@@ -258,15 +253,14 @@ function App() {
         upActFace = {handleUpdateActiveFaces}
       />
     }),
-    rerolls: rerolls,
+    totalRerolls: rerolls+blacks,
     rerollSuccess: rerollSuccess,
     addDie: handleAddNewDie,
-    updateRerolls: handleUpdateRerolls,
     findRerolls: findBestRerollandUpdate
   }
 
   const cycleProps = {
-    cycle: cookies.cycle as number,
+    cycle: cycle,
     cycleUpdater: handleUpdateCycle
   }
 
