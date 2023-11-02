@@ -215,6 +215,10 @@ function App() {
   // Update active Cycle and save as cookie
   function handleUpdateCycle (cycleNumber:number) : void {
     setCookie("cycle", cycleNumber)
+
+    // Remove token types that don't appear in the lower cycles to prevent from factoring into calculations while inputs hidden
+    if (cycleNumber<3) setHope(0)
+    if (cycleNumber<2) setBlacks(0)
   }
 
   // Construct props items for various sub-components
