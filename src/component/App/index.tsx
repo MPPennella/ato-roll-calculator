@@ -249,6 +249,7 @@ function App() {
         highlight = {dieTracker.highlight}
         faceOptions = {dieTracker.die.faces}
         activeFace = {dieTracker.activeFaceOptId}
+        cycle = {cycle}
         remove = {handleRemoveDie}
         upActFace = {handleUpdateActiveFaces}
       />
