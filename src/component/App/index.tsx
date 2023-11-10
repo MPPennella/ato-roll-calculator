@@ -185,7 +185,7 @@ function App() {
       }) 
     }
 
-    const bestRerolls = findBestRerolls( atThreshold, breaks+hope, rerolls+blacks, diceInfo)
+    const bestRerolls = findBestRerolls( atThreshold, breaks, rerolls+blacks, diceInfo, hope)
 
     // Update view with results
     handleUpdateDieHighlights( bestRerolls.ids )
@@ -200,7 +200,7 @@ function App() {
     const timeStart = (new Date()).valueOf()
 
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
-    const rrResult:number = findCombinations(atThreshold, breaks+hope, rerolls+blacks, diceTrackRef.current)
+    const rrResult:number = findCombinations(atThreshold, breaks, rerolls+blacks, diceTrackRef.current, hope)
 
     const timeEnd = (new Date()).valueOf()
     const totalTime = timeEnd - timeStart
@@ -223,8 +223,8 @@ function App() {
 
   // Construct props items for various sub-components
   const resultDisplayProps = {
-    successPcntBef: thresholdCheck(atThreshold, breaks+hope, outcomes),
-    averageBef: averageResult(outcomes, breaks+hope),
+    successPcntBef: thresholdCheck(atThreshold, breaks, outcomes, hope),
+    averageBef: averageResult(outcomes, breaks, hope),
     successPcntAft: allRerollSuccess,
     averageAft: 0,
     updateRerollDisplay: handleUpdateAllRerollDisplay
@@ -272,6 +272,7 @@ function App() {
   // Check if valid Cycle cookie on first render, if not default to Cycle 1
   useEffect(()=>{
     const cycle = cookies.cycle
+    // Cycle must be defined, a number, and between 1 and 5
     if (cycle === undefined || isNaN(cycle) || cycle<1 || cycle>5 ) setCookie("cycle",1)
   },[])
 

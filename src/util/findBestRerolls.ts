@@ -28,22 +28,21 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
  * @param diceInfo Array of DieInfo of dice/faces that are candidates for rerolls
  * @returns `{ success: number, ids: Array<number>}` Object with `success` (as percent) and `ids` containing array of id numbers of best set of dice to reroll
  */
-export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
+export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo>, hopeValue:number ) : BestRerollReturn {
     const numDice = diceInfo.length
     
     // Check if already succeeding, if so no need to reroll
-    const successCheck:boolean = ( 100 === thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) )) )
-
-    // console.log(`INPUT\tAT: ${thresholdValue}\tBREAKS: ${breakValue}\t REROLLS: ${rerolls}`)
-    // console.log(`ALREADY PASSING: ${(successCheck)}`)
+    const successCheck:boolean = ( 100 === thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) ), hopeValue ) )
 
     if ( successCheck ) return {success: 100, ids: []}
+
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
     if ( numDice === 0 || rerolls === 0 ) return {success: 0, ids: []}
 
+
     // Otherwise call recursive function to calculate best reroll targets
-    const result = findBestRerollsRecur( thresholdValue, breakValue, rerolls, diceInfo )
+    const result = findBestRerollsRecur( thresholdValue, breakValue, hopeValue, rerolls, diceInfo )
 
     // console.log("OVERALL BEST:")
     // console.log(result.success.toFixed(3)+"%")
@@ -53,14 +52,14 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 }
 
 // Recursive function to find results
-function findBestRerollsRecur ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
+function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     // console.log("WITH REROLLS AVAILBLE: "+rerolls)
     
     // If no rerolls, just find chance of success as-is and return with no reroll targets
     if ( rerolls === 0 ) {
         
         const dieFaces = diceInfo.map(die => [die.face])
-        const success = thresholdCheck( thresholdValue, breakValue, dieOutcomes(dieFaces))
+        const success = thresholdCheck( thresholdValue, breakValue, dieOutcomes(dieFaces), hopeValue)
 
         return {
             success: success,
@@ -204,8 +203,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
             // If somewhere in between, need to find the possible combos of static/re-rolled faces
             } else {
                 const {length} = whiteList
-                const tempList : Array< Array<number> > = []
-
+                
                 // Recursive function to generate combinations of indices
                 function findIndCombins ( startIndex:number, endIndex:number, choices:number ) : Array< Array<number> >  {
                     // ERROR CHECKING:
@@ -288,7 +286,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
         // If no White Face Set Lists, ignore and use only Red/Black
         if (whiteFaceSetListCombos.length === 0) {  
             const outcomes = dieOutcomes(inputRB)
-            const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes)
+            const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes, hopeValue)
 
             // Compare to previous best and update if better
             if ( successPcnt > bestSuccessChance ) {
@@ -300,7 +298,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
             for (let i=0; i<whiteFaceSetListCombos.length; i++) {
                 const fullInput = inputRB.concat( whiteFaceSetListCombos[i] )
                 const outcomes = dieOutcomes(fullInput)
-                const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes)
+                const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes, hopeValue)
                 
                 // Compare to previous best and update if better
                 if ( successPcnt > bestSuccessChance ) {
@@ -318,7 +316,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, reroll
 
     // Recursively call with n-1 rerolls available and compare to check if better to reroll fewer dice
     // NOTE: Prioritizes the recursion result if returns equal chance of success
-    const recurResults = findBestRerollsRecur( thresholdValue, breakValue, rerolls-1, diceInfo)
+    const recurResults = findBestRerollsRecur( thresholdValue, breakValue, hopeValue, rerolls-1, diceInfo)
     if ( recurResults.success >= bestSuccessChance ) {
         // Return recursion results if equal or better
         return recurResults
