@@ -3,14 +3,15 @@ import { PowerDieFace } from '../../types/'
 import './ActiveDie.css'
 
 function ActiveDie (
-    {dieID, color, highlight=false, faceOptions, activeFace, remove, upActFace } 
+    {dieID, color, highlight=false, faceOptions, activeFace, cycle, remove, upActFace } 
     : 
     {
         dieID:number, 
-        color:string, 
-        highlight?:Boolean, 
-        faceOptions:Array<PowerDieFace>, 
-        activeFace:string, 
+        color:string,
+        highlight?:Boolean,
+        faceOptions:Array<PowerDieFace>,
+        activeFace:string,
+        cycle: number,
         remove:(id:number)=>void, 
         upActFace:(id:number, faceLabel:string, newActiveFaceSet:PowerDieFace[])=>void
     }) : React.JSX.Element {
@@ -71,7 +72,9 @@ function ActiveDie (
             let curr = faceOptions[i]
             faceOptionComponents.push(
                 <option className="FaceSelectOption" key={i} value={`face${i}`}>
-                    { `Pow ${curr.power}, Break ${curr.potential}` }
+                    {/* { `${curr.power} / ${curr.potential}${ cycle>=3 ? ` / ${curr.dot}` : "" }` } */}
+                    {/* { `P:${curr.power} B:${curr.potential}${ cycle>=3 ? ` D:${curr.dot}` : "" }` } */}
+                    { `Pow ${curr.power} Br ${curr.potential}${ cycle>=3 ? ` Dot ${curr.dot}` : "" }` }
                 </option>
             )
         }

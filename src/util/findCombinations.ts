@@ -26,7 +26,7 @@ type CombinationMap = {
 // 
 // Theoretical worst case ~O(n^13) [polynomial] when a mix of all three colors of dice are used, pending implementation of duplicate-face accounting
 // Theoretical best  case O(n^4) [polynomial] if using only Red or only Black dice, pending implementation of duplicate-face accounting
-export default function findCombinations (atThreshold:number, breaks:number, rerolls:number, diceTrackRef : Array< PowerDieTracker >) : number {
+export default function findCombinations (atThreshold:number, breaks:number, rerolls:number, diceTrackRef : Array< PowerDieTracker >, hopeValue:number) : number {
     
     // Extract relevant info for dice
     const diceList = diceTrackRef.map( (dieTracker) => {
@@ -92,7 +92,7 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
                     }
                 })
 
-                weightedChanceList.push( findBestRerolls(atThreshold, breaks, rerolls, rDice.concat(bDice).concat(wDice) ).success * (rMap.weight*bMap.weight*wMap.weight ) )
+                weightedChanceList.push( findBestRerolls(atThreshold, breaks, rerolls, rDice.concat(bDice).concat(wDice), hopeValue ).success * (rMap.weight*bMap.weight*wMap.weight ) )
 
             }
         }

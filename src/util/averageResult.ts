@@ -1,21 +1,24 @@
-import type {PowerDieFace} from "../types/"
+import type {PowerDieTotal} from "../types/"
+import calcPower from "./calcPower"
 
 // Finds the average Power generated from the list of possible Face totals while factoring in the number of Breaks available
-export default function averageResult ( outcomeList:Array<PowerDieFace>, breakValue:number ) : number {
+export default function averageResult ( outcomeList:Array<PowerDieTotal>, breakValue:number, hopeValue?:number ) : number {
     const numTerms:number = outcomeList.length
 
-    // Average of zero terms will be set as zero
+    // SPECIAL CASE: Average of zero terms will be set as zero
     if (numTerms === 0 ) return 0
 
-    let initVal = 0 // Initial value
-    let totalPower:number = outcomeList.reduce( (totalPower:number, currentFace:PowerDieFace) => {
-        // Get Power and Potential values from current face
-        let {power: pow, potential:pot} = currentFace
-        let extraPower = pot > breakValue ? breakValue : pot
-        return totalPower + pow + extraPower
+    // Find total amount of power from adding all the possible outcomes
+    // Initial value for sum
+    const initVal = 0
+
+    const totalPower:number = outcomeList.reduce( (totalPower:number, currentSummary:PowerDieTotal) => {
+        // Add calculated Power from current Power summary to accumulated total Power
+        return totalPower + calcPower(currentSummary, breakValue, hopeValue)
     }, initVal)
 
-    let average:number = totalPower/numTerms
+    // Divide total by number of terms to get average
+    const average:number = totalPower/numTerms
 
     return average
 }
