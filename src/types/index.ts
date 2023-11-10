@@ -20,12 +20,17 @@ export type PowerDie = {
     faces : Array<PowerDieFace>
 }
 
-// Represents the characteristics of one face of a Power die
-export type PowerDieFace = {
+type PowerInfo = {
     power: number
     potential: number
     dot: number
 }
+
+// Represents the characteristics of one face of a Power die
+export type PowerDieFace = PowerInfo
+
+// Represents the power/potential/dot totals 
+export type PowerDieTotal = PowerInfo
 
 // Contains info for tracking the state of Power Dice that have been created
 export type PowerDieTracker = {
