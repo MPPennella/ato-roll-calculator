@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useCookies } from 'react-cookie';
 import './App.css';
 // Components
 import ActiveDie from '../ActiveDie';
 import ConditionSelectPanel from '../ConditionSelectPanel';
 import DieSelectPanel from '../DieSelectPanel';
 import ResultDisplayPanel from '../ResultDisplayPanel';
+import CycleSelector from '../CycleSelector'
 // Types
 import { DieInfo, PowerDie, PowerDieFace, PowerDieTracker } from '../../types';
 // Data and processing utilities
@@ -22,10 +24,16 @@ function App() {
 
   // State variables
 
+  // State to track the Cycle
+  const [cookies, setCookie] = useCookies(['cycle'])
+  const cycle = cookies.cycle as number
+
   // State to track the target AT Threshold and Breaks available
   const [atThreshold, setATThreshold] = React.useState(1)
   const [breaks, setBreaks] = React.useState(0)
+  const [hope, setHope] = React.useState(0)
   const [rerolls, setRerolls] = React.useState(0)
+  const [blacks, setBlacks] = React.useState(0)
   const [allRerollSuccess, setAllRerollSuccess] = React.useState(0)
   const [rerollSuccess, setRerollSuccess] = React.useState(0)
 
@@ -63,21 +71,6 @@ function App() {
 
 
   // CALLBACKS
-
-  // Callback to update AT state
-  function handleUpdateAT( newAT:number ) : void {
-    setATThreshold(newAT)
-  }
-
-  // Callback to update Break state
-  function handleUpdateBreaks( newBreaks:number ) : void {
-    setBreaks(newBreaks)
-  }
-
-  // Callback to update Reroll state
-  function handleUpdateRerolls( newRerolls:number ) : void {
-    setRerolls(newRerolls)
-  }
 
   // Adds a new die to the pool, handling input of which type (color) to add
   function handleAddNewDie( color:string ) : void {
@@ -192,11 +185,11 @@ function App() {
       }) 
     }
 
-    const bestRerolls = findBestRerolls( atThreshold, breaks, rerolls, diceInfo)
+    const bestRerolls = findBestRerolls( atThreshold, breaks+hope, rerolls+blacks, diceInfo)
 
     // Update view with results
     handleUpdateDieHighlights( bestRerolls.ids )
-    setRerollSuccess(bestRerolls.success)
+    setRerollSuccess( bestRerolls.success )
   }
 
   // Find chance of success with given dice pool including using rerolls and update display
@@ -207,7 +200,7 @@ function App() {
     const timeStart = (new Date()).valueOf()
 
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
-    const rrResult:number = findCombinations(atThreshold, breaks, rerolls, diceTrackRef.current)
+    const rrResult:number = findCombinations(atThreshold, breaks+hope, rerolls+blacks, diceTrackRef.current)
 
     const timeEnd = (new Date()).valueOf()
     const totalTime = timeEnd - timeStart
@@ -219,20 +212,36 @@ function App() {
     setAllRerollSuccess(rrResult)
   }
 
+  // Update active Cycle and save as cookie
+  function handleUpdateCycle (cycleNumber:number) : void {
+    setCookie("cycle", cycleNumber)
+
+    // Remove token types that don't appear in the lower cycles to prevent from factoring into calculations while inputs hidden
+    if (cycleNumber<3) setHope(0)
+    if (cycleNumber<2) setBlacks(0)
+  }
+
   // Construct props items for various sub-components
   const resultDisplayProps = {
-    successPcntBef: thresholdCheck(atThreshold, breaks, outcomes),
-    averageBef: averageResult(outcomes, breaks),
+    successPcntBef: thresholdCheck(atThreshold, breaks+hope, outcomes),
+    averageBef: averageResult(outcomes, breaks+hope),
     successPcntAft: allRerollSuccess,
     averageAft: 0,
     updateRerollDisplay: handleUpdateAllRerollDisplay
   }
 
   const conditionProps = {
+    cycle: cycle,
     atThreshold: atThreshold,
     breaks: breaks,
-    upAT: handleUpdateAT,
-    upBr: handleUpdateBreaks
+    hope: hope,
+    rerolls: rerolls,
+    black: blacks,
+    updateAT: setATThreshold,
+    updateBreaks: setBreaks,
+    updateHope: setHope,
+    updateRerolls: setRerolls,
+    updateBlack: setBlacks
   }
 
   const dieSelectProps = {
@@ -244,16 +253,27 @@ function App() {
         highlight = {dieTracker.highlight}
         faceOptions = {dieTracker.die.faces}
         activeFace = {dieTracker.activeFaceOptId}
+        cycle = {cycle}
         remove = {handleRemoveDie}
         upActFace = {handleUpdateActiveFaces}
       />
     }),
-    rerolls: rerolls,
+    totalRerolls: rerolls+blacks,
     rerollSuccess: rerollSuccess,
     addDie: handleAddNewDie,
-    updateRerolls: handleUpdateRerolls,
     findRerolls: findBestRerollandUpdate
   }
+
+  const cycleProps = {
+    cycle: cycle,
+    cycleUpdater: handleUpdateCycle
+  }
+
+  // Check if valid Cycle cookie on first render, if not default to Cycle 1
+  useEffect(()=>{
+    const cycle = cookies.cycle
+    if (cycle === undefined || isNaN(cycle) || cycle<1 || cycle>5 ) setCookie("cycle",1)
+  },[])
 
   // Create display components and pass props
   return (
@@ -263,6 +283,7 @@ function App() {
         <ResultDisplayPanel {...resultDisplayProps} />
         <ConditionSelectPanel {...conditionProps} />
         <DieSelectPanel {...dieSelectProps} />
+        <CycleSelector {...cycleProps}  />
       </div>
     </div>
   );

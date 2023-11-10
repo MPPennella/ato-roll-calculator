@@ -4,14 +4,13 @@ import DieCreator from '../DieCreator'
 import ConditionLabel from '../ConditionLabel'
 
 function DieSelectPanel ( 
-    {diceComponents, rerolls, rerollSuccess, addDie, updateRerolls, findRerolls} 
+    {diceComponents, totalRerolls, rerollSuccess, addDie, findRerolls} 
     :
     {
         diceComponents: Array<React.JSX.Element>,
-        rerolls: number,
+        totalRerolls: number,
         rerollSuccess: number,
         addDie: (color:string)=>void, 
-        updateRerolls: (newRerolls:number)=>void,
         findRerolls: ()=>void
     } ) : React.JSX.Element  {
 
@@ -23,7 +22,7 @@ function DieSelectPanel (
     // Determine if reroll button should be disabled
     // Should be disabled if no rerolls, or no dice, or if not all dice are set to a static face
     // TODO: Add checking for if not all dice are set to a static face
-    const isFindRerollDisabled = (!rerolls || !diceComponents.length) ? true : false
+    const isFindRerollDisabled = (!totalRerolls || !diceComponents.length) ? true : false
 
     return (
         <div className='DieSelectPanel'>
@@ -48,9 +47,9 @@ function DieSelectPanel (
                 </label>                
             </div> */}
 
-            <div style={{width:"min-content", margin:"auto"}} >
+            {/* <div style={{width:"min-content", margin:"auto"}} >
                 <ConditionLabel boxValue={rerolls} updateValue={updateRerolls} >Rerolls:</ConditionLabel>
-            </div>
+            </div> */}
 
             <button className='RerollButton' onClick={findRerolls} disabled={ isFindRerollDisabled }>Find Best Rerolls</button>
 

@@ -3,21 +3,34 @@ import ConditionLabel from '../ConditionLabel'
 import './ConditionSelectPanel.css'
 
 function ConditionSelectPanel ( 
-    {atThreshold, breaks, upAT, upBr} 
+    {cycle, atThreshold, breaks, hope, rerolls, black, updateAT, updateBreaks, updateHope, updateRerolls, updateBlack} 
     : 
     {
+        cycle: number,
         atThreshold:number, 
-        breaks:number, 
-        upAT:(newValue:number)=>void, 
-        upBr:(newValue:number)=>void
+        breaks:number,
+        hope:number,
+        rerolls:number,
+        black:number,
+        updateAT:(newValue:number)=>void, 
+        updateBreaks:(newValue:number)=>void,
+        updateHope:(newValue:number)=>void,        
+        updateRerolls:(newValue:number)=>void,
+        updateBlack:(newValue:number)=>void
     }) {
 
     return (
         <div className='ConditionSelectPanel'>
-            <h2>Setup</h2>
             <div className='ConditionLabelBoundBox'>
-                <ConditionLabel boxValue={atThreshold} updateValue={upAT} >Aeon Trespass Threshold:</ConditionLabel>
-                <ConditionLabel boxValue={breaks} updateValue={upBr} >Break Tokens:</ConditionLabel>
+                <h2>Primordial</h2>            
+                <ConditionLabel boxValue={atThreshold} updateValue={updateAT} >Aeon Trespass Threshold:</ConditionLabel>
+
+                <h2>Kratos Pool and Rerolls</h2>
+                <ConditionLabel boxValue={breaks} updateValue={updateBreaks} >{"Break "+(cycle>=2?"and Fire ":"")+"Tokens:"}</ConditionLabel>
+                {(cycle>=3)?<ConditionLabel boxValue={hope} updateValue={updateHope} >Hope Tokens:</ConditionLabel>:null}
+                <ConditionLabel boxValue={rerolls} updateValue={updateRerolls} >Power Re-rolls:</ConditionLabel>
+                {(cycle>=2)?<ConditionLabel boxValue={black} updateValue={updateBlack} >Black Tokens:</ConditionLabel>:null}
+                
             </div>
         </div>
     )

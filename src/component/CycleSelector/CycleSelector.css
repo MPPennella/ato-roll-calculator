@@ -1,0 +1,25 @@
+.CycleButton {
+    height: 40px;
+    width: 40px;
+    margin: 2px;
+    border-width:1px;
+    border-radius: 2px;
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: bold;
+    font-size: 16px;
+    color: #555555;
+}
+
+.ActiveCycle {
+    background-color: #ff2e40;
+    border-color: #a01925;
+    border-width: 2px;
+    color: #222222;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ActiveCycle {
+        background-color: #a51b27;
+        color: #fcc
+    }
+}
