@@ -12,6 +12,10 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
+### 1.5.1
+
+* Implemnted full functionality for Hope tokens
+
 ### 1.4.1
 
 * Added support for later-Cycle token types - Fire, Hope, and Black
