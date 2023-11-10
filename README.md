@@ -4,13 +4,21 @@
 
 App is used to calculate chance of certain combat outcomes in the board game Aeon Trespass: Odyssey using their custom D6 "Power Die".
 
-The user inputs their target Aeon Trespass threshold and number of Break Tokens able to be used, then can add Power Dice of any mix of Red, Black, and White types, up to a total of eight dice. The app then calculates the percentage chance that rolling the chosen dice will meet or exceed the target AT threshold. The average AT value is also displayed.
+The user inputs their target Aeon Trespass threshold and number of Break and other Tokens and Power Rerolls able to be used, then can add Power Dice of any mix of Red, Black, and White types, up to a total of eight dice. The app then calculates the percentage chance that rolling the chosen dice will meet or exceed the target AT threshold. The average AT value is also displayed.
 
-The user can also select individual faces for each die, representing the result of the dice. The user then inputs how many Power Die Rerolls are available, and the app will calculate which dice would provide the best chance of success (including using fewer than the maximum number of rerolls) and highlight those dice.
+The user can also select individual faces for each die, representing the result of the initial roll of the dice, and the app will calculate which dice to reroll in order to provide the best chance of success (including using fewer than the maximum number of rerolls) and highlight those dice.
 
 ---
 
 ## Version History
+
+### 1.4.1
+
+* Added support for later-Cycle token types - Fire, Hope, and Black
+  *  Note that full functionality for Hope and Black Tokens is not yet implemented, currently they are just treated as Break and Power Rerolls respectively instead
+* Added toggle to select current Cycle to control which tokens are shown
+* Reorganized visual elements to group inputs closer together
+* Reworked some visuals to support relevant information in later Cycles
 
 ### 1.3.2
 
