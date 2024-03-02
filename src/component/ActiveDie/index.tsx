@@ -33,7 +33,7 @@ function ActiveDie (
 
     // Add Highlighting if supposed to be active
     let highlightTag:string = ""
-    if (highlight === true) highlightTag = "HighlightedDie"
+    if (highlight === true) highlightTag = "HighlightedDie HighlightedDieRegular"
 
     // Deletes this die by passing ID to controlling function
     function removeDie():void {

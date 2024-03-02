@@ -185,7 +185,7 @@ function App() {
       }) 
     }
 
-    const bestRerolls = findBestRerolls( atThreshold, breaks, rerolls+blacks, diceInfo, hope)
+    const bestRerolls = findBestRerolls( atThreshold, breaks, hope, rerolls, blacks, diceInfo)
 
     // Update view with results
     handleUpdateDieHighlights( bestRerolls.ids )
@@ -196,16 +196,18 @@ function App() {
   function handleUpdateAllRerollDisplay () : void {
     // Find average result of all possible reroll scenarios
 
+    console.log("------------")
+    console.log("CALCULATING ALL REROLL POSSIBILITIES...")
+
     // Tracker for calc time
     const timeStart = (new Date()).valueOf()
 
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
-    const rrResult:number = findCombinations(atThreshold, breaks, rerolls+blacks, diceTrackRef.current, hope)
+    const rrResult:number = findCombinations(atThreshold, breaks, rerolls, blacks, diceTrackRef.current, hope)
 
     const timeEnd = (new Date()).valueOf()
     const totalTime = timeEnd - timeStart
 
-    console.log("-------------")
     // console.log(`Original method: ${naiveTime}ms`)
     console.log(`REROLL CALC TIME: ${totalTime}ms`)
 

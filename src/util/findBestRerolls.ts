@@ -2,20 +2,25 @@
 import sortPowerDice from "./sortPowerDice"
 import dieOutcomes from "./dieOutcomes"
 import thresholdCheck from "./thresholdCheck"
+import makeBlacked from "./makeBlacked"
 // Type imports
 import { DieInfo, PowerDieFace } from "../types/"
 // Data import
 import {RED_DIE, BLACK_DIE, WHITE_DIE} from '../data/PowerDiceData'
 
+
+// Type Definitions
 type BestRerollReturn = {
     success: number,
     ids: Array<number>
 }
 
-function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array<DieInfo>{
-    return diceInfo.filter((die) => {
-        return die.color === filterColor ? true : false
-    })
+// Holds the number each type of dice we want to reroll
+// r/b/w are short for Red/Black/White
+type RerollDice = {
+    r: number,
+    b: number,
+    w: number
 }
 
 /**
@@ -24,11 +29,13 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
  * 
  * @param thresholdValue Integer number of target AT threshold to hit
  * @param breakValue Integer number of Break Tokens available
+ * @param hopeValue Integer number of Hope Tokens available
  * @param rerolls Integer number of Power Die rerolls available
+ * @param blacks Integer number of Black Token rerolls available
  * @param diceInfo Array of DieInfo of dice/faces that are candidates for rerolls
  * @returns `{ success: number, ids: Array<number>}` Object with `success` (as percent) and `ids` containing array of id numbers of best set of dice to reroll
  */
-export default function findBestRerolls ( thresholdValue:number, breakValue:number, rerolls:number, diceInfo:Array<DieInfo>, hopeValue:number ) : BestRerollReturn {
+export default function findBestRerolls ( thresholdValue:number, breakValue:number, hopeValue:number, rerolls:number, blacks:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     const numDice = diceInfo.length
     
     // Check if already succeeding, if so no need to reroll
@@ -38,11 +45,11 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
-    if ( numDice === 0 || rerolls === 0 ) return {success: 0, ids: []}
+    if ( numDice === 0 || rerolls+blacks <= 0 ) return {success: 0, ids: []}
 
 
     // Otherwise call recursive function to calculate best reroll targets
-    const result = findBestRerollsRecur( thresholdValue, breakValue, hopeValue, rerolls, diceInfo )
+    const result = findBestRerollsRecur( thresholdValue, breakValue, hopeValue, rerolls, blacks, diceInfo )
 
     // console.log("OVERALL BEST:")
     // console.log(result.success.toFixed(3)+"%")
@@ -52,11 +59,11 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
 }
 
 // Recursive function to find results
-function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeValue:number, rerolls:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
+function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeValue:number, rerolls:number, blacks:number, diceInfo:Array<DieInfo> ) : BestRerollReturn {
     // console.log("WITH REROLLS AVAILBLE: "+rerolls)
-    
-    // If no rerolls, just find chance of success as-is and return with no reroll targets
-    if ( rerolls === 0 ) {
+    let totalRerolls = rerolls+blacks
+    // If no rerolls/blacks, just find chance of success as-is and return with no reroll targets
+    if ( totalRerolls <= 0 ) {
         
         const dieFaces = diceInfo.map(die => [die.face])
         const success = thresholdCheck( thresholdValue, breakValue, dieOutcomes(dieFaces), hopeValue)
@@ -70,7 +77,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
     const numDice = diceInfo.length
 
     // If more rerolls than dice, set rerolls to number of dice
-    if ( rerolls > numDice ) rerolls = numDice
+    if ( totalRerolls > numDice ) totalRerolls = numDice
     
     // Find best single die to reroll
     // - Look at each color of die and find the worst face among them to limit search
@@ -81,76 +88,16 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
     const redList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "red"))
     const blackList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "black"))
     const whiteList : Array<DieInfo> = filterDiceByColor(diceInfo, "white")
-    // console.log("RED:")
-    // console.log(redList)
-    // console.log("BLACK:")
-    // console.log(blackList)
-    // console.log("WHITE:")
-    // console.log(whiteList)
 
-    // Choose best dice to reroll by trying different combinations of lowest dice from each color pool to reroll (for White all must be considered)
-
-    // Holds the number each type of dice we want to reroll
-    // r/b/w are short for Red/Black/White
-    type RerollDice = {
-        r: number,
-        b: number,
-        w: number
-    }
-
-    // Array to store the different combinations of rerolling dice we want to try
-    const rerollCombos:Array<RerollDice> = []
-
-    // Find each different combination of dice to reroll with available number of rerolls
+    // Create reference for maximum number of each color that could be rerolled
     const redMax : number = redList.length
     const blackMax : number = blackList.length
     const whiteMax : number = whiteList.length
-
-    // *r* counts rerolls being assigned to Red
-    for (let r = 0; r <= rerolls; r++) {
-        
-        // If *r* exceeds available dice, not enough to use all rerolls: terminate current iteration
-        if ( r > redMax ) continue
-
-        // Check if more to allocate and proceed to next color (black)
-        let remAfterRed = rerolls - r
-        if (remAfterRed > 0 ) {
-            // *b* counts rerolls being assigned to Black
-            for ( let b = 0; b <= remAfterRed; b++ ) {
-                // If *b* exceeds available dice, not enough to use all rerolls: terminate current iteration
-                if ( b > blackMax ) continue
-
-                // Check if more to allocate and proceed to next color (white)
-                let w = remAfterRed - b
-
-                // If *w* exceeds available dice, not enough to use all rerolls: terminate current iteration
-                if ( w > whiteMax ) continue
-
-                // Allocate reroll counts
-                const newReroll:RerollDice = {
-                    r: r,
-                    b: b,
-                    w: w
-                }
-                
-                // Add to list of reroll combos to investigate
-                rerollCombos.push(newReroll)                    
-            }
-        } else { 
-            // Allocate reroll counts (only red are non-zero in this condition)
-            const newReroll:RerollDice = {
-                r: r,
-                b: 0,
-                w: 0
-            }
-
-            // Add to list of reroll combos to investigate
-            rerollCombos.push(newReroll) 
-        }
-    }
-
-    // console.log("CALCULATED REROLL COMBOS:")
-    // console.log(rerollCombos)
+    
+    // Choose best dice to reroll by trying different combinations of lowest dice from each color pool to reroll (for White all must be considered)
+    
+    // Find each different combination of dice to reroll with available number of rerolls
+    const rerollCombos = generateRerollCombos(totalRerolls, redMax, blackMax, whiteMax)
 
     // Check each combination to see how good the result is and compare
 
@@ -170,7 +117,9 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         const indexToSliceRed = (redRerolls < redList.length) ? redRerolls - redList.length : redList.length
         const redFaceSetList:Array<PowerDieFace[]> = redList.slice( indexToSliceRed  ).map( die => [die.face])
         // Add full set of randomized faces for each rerolling Red die
-        for (let i=0; i<redRerolls; i++) { redFaceSetList.push( RED_DIE.faces) }
+        for (let i=0; i<redRerolls; i++) { 
+            redFaceSetList.push( blacks>0 ? makeBlacked(RED_DIE.faces) : RED_DIE.faces )
+        }
  
         
         // Create list of static/randomized faces of Black dice
@@ -315,12 +264,19 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
 
 
     // Recursively call with n-1 rerolls available and compare to check if better to reroll fewer dice
-    // NOTE: Prioritizes the recursion result if returns equal chance of success
-    const recurResults = findBestRerollsRecur( thresholdValue, breakValue, hopeValue, rerolls-1, diceInfo)
+    // NOTE: Prioritizes the recursion result (i.e. rerolling fewer dice) if returns equal chance of success
+
+    // Find rerolls for next iteration, prioritze removing a regular Power Reroll before Blacks
+    const nextRerolls = rerolls > 0 ? (totalRerolls - blacks - 1) : 0
+    const nextBlacks  = rerolls > 0 ? blacks                      : totalRerolls-1
+
+    const recurResults = findBestRerollsRecur( thresholdValue, breakValue, hopeValue, nextRerolls, nextBlacks, diceInfo)
     if ( recurResults.success >= bestSuccessChance ) {
         // Return recursion results if equal or better
         return recurResults
     }
+
+
 
     // When not using the recusion result, build final return data
 
@@ -344,10 +300,11 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
 
     
     // Make sure number of returned dice don't exceed available rerolls
-    if ( idsToReroll.length > rerolls ) {
+    if ( idsToReroll.length > totalRerolls ) {
         // TODO: Add better error handling
         console.error("ERROR: Rerolls suggested exceed number available")
         console.error( `REROLLS: ${rerolls}` )
+        console.error( `BLACKS: ${blacks}` )
         console.error("ID LIST GIVEN:")
         console.error( idsToReroll )
         console.error( `LENGTH: ${idsToReroll.length}` )
@@ -360,4 +317,71 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
     }
 
     return finalResults
+}
+
+function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array<DieInfo>{
+    return diceInfo.filter((die) => {
+        return die.color === filterColor ? true : false
+    })
+}
+
+
+/**
+ * Function to generate all possible combinations of dice types to reroll for a given number of rerolls 
+ * and distribution of different colored dice available.
+ * 
+ * @param rerolls Integer, total number of rerolls to be allocated.
+ * @param redMax Integer, maximum number of rerolls that can be allocated to red dice.
+ * @param blackMax Integer, maximum number of rerolls that can be allocated to black dice.
+ * @param whiteMax Integer, maximum number of rerolls that can be allocated to white dice.
+ * @returns Array<RerollDice>, each element is a different combination of values of dice to reroll.
+ */
+function generateRerollCombos( rerolls:number, redMax:number, blackMax:number, whiteMax:number) : Array<RerollDice> {
+    // Array to store the different combinations of rerolling dice we want to try
+    const rerollCombos:Array<RerollDice> = []
+
+    // *r* counts rerolls being assigned to Red
+    for (let redsToReroll = 0; redsToReroll <= rerolls; redsToReroll++) {
+        
+        // If *r* exceeds available dice, not enough to use all rerolls: terminate current iteration
+        if ( redsToReroll > redMax ) continue
+
+        // Check if more to allocate and proceed to next color (black)
+        let remAfterRed = rerolls - redsToReroll
+        if (remAfterRed > 0 ) {
+            // *b* counts rerolls being assigned to Black
+            for ( let blacksToReroll = 0; blacksToReroll <= remAfterRed; blacksToReroll++ ) {
+                // If *b* exceeds available dice, not enough to use all rerolls: terminate current iteration
+                if ( blacksToReroll > blackMax ) continue
+
+                // Check if more to allocate and proceed to next color (white)
+                let whitesToReroll = remAfterRed - blacksToReroll
+
+                // If *w* exceeds available dice, not enough to use all rerolls: terminate current iteration
+                if ( whitesToReroll > whiteMax ) continue
+
+                // Allocate reroll counts
+                const newReroll:RerollDice = {
+                    r: redsToReroll,
+                    b: blacksToReroll,
+                    w: whitesToReroll
+                }
+                
+                // Add to list of reroll combos to investigate
+                rerollCombos.push(newReroll)                    
+            }
+        } else { 
+            // Allocate reroll counts (only red are non-zero in this condition)
+            const newReroll:RerollDice = {
+                r: redsToReroll,
+                b: 0,
+                w: 0
+            }
+
+            // Add to list of reroll combos to investigate
+            rerollCombos.push(newReroll) 
+        }
+    }
+
+    return rerollCombos
 }
