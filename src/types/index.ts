@@ -40,4 +40,5 @@ export type PowerDieTracker = {
     // component: React.JSX.Element,
     activeFaceOptId: string,
     highlight: Boolean,
+    blacked: Boolean,
 }

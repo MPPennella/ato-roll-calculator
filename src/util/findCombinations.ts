@@ -16,6 +16,7 @@ type CombinationMap = {
  * @param atThreshold Integer number of target AT threshold to hit
  * @param breaks Integer number of Break Tokens available
  * @param rerolls Integer number of Power Die rerolls available
+ * @param blacks Integer number of Black Token rerolls available
  * @param diceTrackRef Array containing the die objects
  * @return Percentage chance of succeeding after rerolls with given paramters
  */
@@ -26,7 +27,7 @@ type CombinationMap = {
 // 
 // Theoretical worst case ~O(n^13) [polynomial] when a mix of all three colors of dice are used, pending implementation of duplicate-face accounting
 // Theoretical best  case O(n^4) [polynomial] if using only Red or only Black dice, pending implementation of duplicate-face accounting
-export default function findCombinations (atThreshold:number, breaks:number, rerolls:number, diceTrackRef : Array< PowerDieTracker >, hopeValue:number) : number {
+export default function findCombinations (atThreshold:number, breaks:number, rerolls:number, blacks:number, diceTrackRef : Array< PowerDieTracker >, hopeValue:number) : number {
     
     // Extract relevant info for dice
     const diceList = diceTrackRef.map( (dieTracker) => {
@@ -92,7 +93,7 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
                     }
                 })
 
-                weightedChanceList.push( findBestRerolls(atThreshold, breaks, rerolls, rDice.concat(bDice).concat(wDice), hopeValue ).success * (rMap.weight*bMap.weight*wMap.weight ) )
+                weightedChanceList.push( findBestRerolls(atThreshold, breaks, hopeValue, rerolls, blacks, rDice.concat(bDice).concat(wDice) ).success * (rMap.weight*bMap.weight*wMap.weight ) )
 
             }
         }
