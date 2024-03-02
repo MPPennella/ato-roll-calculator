@@ -124,8 +124,8 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         const indexToSliceBlack = (blackRerolls < blackList.length) ? blackRerolls - blackList.length : blackList.length
         const blackFaceSetList:Array<PowerDieFace[]> = blackList.slice( indexToSliceBlack ).map( die => [die.face])
         
-        // Simpler case where have all of one type of Token
-        if ( !(rerolls > 0 && blacks > 0) ) {
+        // Simpler case where have all of one type of Token or more enough Blacks to cover all dice
+        if ( !(rerolls > 0 && blacks > 0) || blacks >= redRerolls+blackRerolls ) {
             // Add full set of randomized faces for each rerolling Red die
             for (let i=0; i<redRerolls; i++) { 
                 redFaceSetList.push( blacks>0 ? makeBlacked(RED_DIE.faces) : RED_DIE.faces )
@@ -138,10 +138,22 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
             }
         // More complex case with both types of tokens
         } else {
+            // TODO: Implement for case of mixed rerolls
+            const leftovers = redRerolls + blackRerolls - blacks
+            for ( let i = 0; i<= leftovers; i++ ) {
+                const rbl = redRerolls - i
+                const bbl = blackRerolls - (leftovers - i)
+
+                console.log("----")
+                console.log(`INITIAL: Red ${redRerolls}   Blk ${blackRerolls}`)
+                console.log(`RED:   Reg ${redRerolls-rbl}   Blk ${rbl}`)
+                console.log(`BLACK: Reg ${blackRerolls-bbl}   Blk ${bbl}`)
+            }
 
         }
 
         // WHITE face sets
+        // TODO: Implement Black Tokens for White dice
 
         // As White Power Die faces can't be strictly ordered, need to find every combination of N faces to reroll and try them all
         let whiteFaceSetListCombos: Array< Array< PowerDieFace[] > >= []
@@ -316,6 +328,8 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
             idsToRerollRegular.push( blackList[i].id )
         }
     }
+
+    // TODO: Make White dice recognize Black Tokens
     // Add White dice ids starting from bottom of list
     for ( let i=0; i<bestWhiteIndexset.length; i++ ) {
         idsToRerollRegular.push( whiteList[bestWhiteIndexset[i]].id )
@@ -329,8 +343,8 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         console.error( `REROLLS: ${rerolls}` )
         console.error( `BLACKS: ${blacks}` )
         console.error("ID LIST GIVEN:")
-        console.error( idsToRerollRegular )
-        console.error( `LENGTH: ${idsToRerollRegular.length}` )
+        console.error( idsToRerollRegular.concat(idsToRerollBlacked) )
+        console.error( `LENGTH: ${idsToRerollRegular.length + idsToRerollBlacked.length}` )
         
     } 
     
@@ -345,6 +359,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
     return finalResults
 }
 
+// Simple function to find all DieInfo only for a particular color of die
 function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array<DieInfo>{
     return diceInfo.filter((die) => {
         return die.color === filterColor ? true : false
