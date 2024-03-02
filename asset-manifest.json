@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/ato-roll-calculator/static/css/main.8f84d2d5.css",
-    "main.js": "/ato-roll-calculator/static/js/main.0371d0c2.js",
+    "main.css": "/ato-roll-calculator/static/css/main.6e357697.css",
+    "main.js": "/ato-roll-calculator/static/js/main.76c4f551.js",
     "index.html": "/ato-roll-calculator/index.html",
-    "main.8f84d2d5.css.map": "/ato-roll-calculator/static/css/main.8f84d2d5.css.map",
-    "main.0371d0c2.js.map": "/ato-roll-calculator/static/js/main.0371d0c2.js.map"
+    "main.6e357697.css.map": "/ato-roll-calculator/static/css/main.6e357697.css.map",
+    "main.76c4f551.js.map": "/ato-roll-calculator/static/js/main.76c4f551.js.map"
   },
   "entrypoints": [
-    "static/css/main.8f84d2d5.css",
-    "static/js/main.0371d0c2.js"
+    "static/css/main.6e357697.css",
+    "static/js/main.76c4f551.js"
   ]
 }
