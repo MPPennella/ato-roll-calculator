@@ -107,7 +107,8 @@ function App() {
           die: newDie,
           activeFaceSet: newDie.faces,
           activeFaceOptId: "rand",
-          highlight: false
+          highlight: false,
+          blacked: false
       }
 
       // Add new die and resort list, then update state
@@ -118,26 +119,37 @@ function App() {
   }
 
   // Changes highlighting of dice objects - highlights specified IDs, de-highlights any others
-  function handleUpdateDieHighlights (dieIDs:Array<number>) : void {
+  function handleUpdateDieHighlights (dieIDsRegular:Array<number>, dieIDsBlacked:Array<number>) : void {
     const updatedDiceTracker = diceTrackRef.current as Array<PowerDieTracker>
 
     // Check each tracked die to find matches
     for (const tracker of updatedDiceTracker) {
       // No highlight unless specified by ID in array
       let highlightStatus = false
+      let blackedStatus = false
 
-      // Check if ID of current die matches a targeted ID
-      for (const targetID of dieIDs) {
-        if (tracker.id === targetID) {
-          highlightStatus = true
-          break
-        }
+      if (dieIDsRegular.includes(tracker.id)) {
+        highlightStatus = true
       }
+      if (dieIDsBlacked.includes(tracker.id)) {
+        highlightStatus = true
+        blackedStatus = true
+      }
+      // // Check if ID of current die matches a targeted ID
+      // for (const targetID of dieIDsRegular) {
+      //   if (tracker.id === targetID) {
+      //     highlightStatus = true
+      //     break
+      //   }
+      // }
 
       // Only need to change if different status from before
       if (tracker.highlight!== highlightStatus) {
         // TODO: Issue - React does not immediately update highlight (on or off) if only one die in list, but does track as updates when another added
         tracker.highlight = highlightStatus
+      }
+      if (tracker.blacked !== blackedStatus) {
+        tracker.blacked = blackedStatus
       }
     }
 
@@ -185,10 +197,10 @@ function App() {
       }) 
     }
 
-    const bestRerolls = findBestRerolls( atThreshold, breaks, rerolls+blacks, diceInfo, hope)
+    const bestRerolls = findBestRerolls( atThreshold, breaks, hope, rerolls, blacks, diceInfo)
 
     // Update view with results
-    handleUpdateDieHighlights( bestRerolls.ids )
+    handleUpdateDieHighlights( bestRerolls.ids.regular, bestRerolls.ids.blacked )
     setRerollSuccess( bestRerolls.success )
   }
 
@@ -196,16 +208,18 @@ function App() {
   function handleUpdateAllRerollDisplay () : void {
     // Find average result of all possible reroll scenarios
 
+    console.log("------------")
+    console.log("CALCULATING ALL REROLL POSSIBILITIES...")
+
     // Tracker for calc time
     const timeStart = (new Date()).valueOf()
 
     // Alternate method - find all *unique* combinations of faces, then weight them by appearance and run reroll check only on unique combinations
-    const rrResult:number = findCombinations(atThreshold, breaks, rerolls+blacks, diceTrackRef.current, hope)
+    const rrResult:number = findCombinations(atThreshold, breaks, rerolls, blacks, diceTrackRef.current, hope)
 
     const timeEnd = (new Date()).valueOf()
     const totalTime = timeEnd - timeStart
 
-    console.log("-------------")
     // console.log(`Original method: ${naiveTime}ms`)
     console.log(`REROLL CALC TIME: ${totalTime}ms`)
 
@@ -251,6 +265,7 @@ function App() {
         dieID = {dieTracker.id} 
         color = {dieTracker.die.color}
         highlight = {dieTracker.highlight}
+        blacked = {dieTracker.blacked}
         faceOptions = {dieTracker.die.faces}
         activeFace = {dieTracker.activeFaceOptId}
         cycle = {cycle}
