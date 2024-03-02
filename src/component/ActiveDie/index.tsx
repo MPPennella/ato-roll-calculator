@@ -3,12 +3,13 @@ import { PowerDieFace } from '../../types/'
 import './ActiveDie.css'
 
 function ActiveDie (
-    {dieID, color, highlight=false, faceOptions, activeFace, cycle, remove, upActFace } 
+    {dieID, color, highlight=false, blacked=false, faceOptions, activeFace, cycle, remove, upActFace } 
     : 
     {
         dieID:number, 
         color:string,
         highlight?:Boolean,
+        blacked?:Boolean,
         faceOptions:Array<PowerDieFace>,
         activeFace:string,
         cycle: number,
@@ -33,7 +34,7 @@ function ActiveDie (
 
     // Add Highlighting if supposed to be active
     let highlightTag:string = ""
-    if (highlight === true) highlightTag = "HighlightedDie HighlightedDieRegular"
+    if (highlight === true) highlightTag = `HighlightedDie ${blacked === true ? "HighlightedDieBlacked" : "HighlightedDieRegular"}`
 
     // Deletes this die by passing ID to controlling function
     function removeDie():void {

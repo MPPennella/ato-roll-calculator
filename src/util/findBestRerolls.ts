@@ -12,7 +12,10 @@ import {RED_DIE, BLACK_DIE, WHITE_DIE} from '../data/PowerDiceData'
 // Type Definitions
 type BestRerollReturn = {
     success: number,
-    ids: Array<number>
+    ids: {
+        regular: Array<number>,
+        blacked: Array<number>
+    }
 }
 
 // Holds the number each type of dice we want to reroll
@@ -41,11 +44,11 @@ export default function findBestRerolls ( thresholdValue:number, breakValue:numb
     // Check if already succeeding, if so no need to reroll
     const successCheck:boolean = ( 100 === thresholdCheck( thresholdValue, breakValue, dieOutcomes( diceInfo.map( (die)=>[die.face]) ), hopeValue ) )
 
-    if ( successCheck ) return {success: 100, ids: []}
+    if ( successCheck ) return {success: 100, ids: {regular: [], blacked: []}}
 
 
     // If no dice or no rerolls, then no further processing needed, and return empty array indicating no dice to reroll
-    if ( numDice === 0 || rerolls+blacks <= 0 ) return {success: 0, ids: []}
+    if ( numDice === 0 || rerolls+blacks <= 0 ) return {success: 0, ids: {regular: [], blacked: []}}
 
 
     // Otherwise call recursive function to calculate best reroll targets
@@ -70,7 +73,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
 
         return {
             success: success,
-            ids:[]
+            ids:{regular: [], blacked: []}
         }
     }
 
@@ -116,19 +119,27 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         // Start with list of dice faces that are not being rerolled, extracting just the face info from each die
         const indexToSliceRed = (redRerolls < redList.length) ? redRerolls - redList.length : redList.length
         const redFaceSetList:Array<PowerDieFace[]> = redList.slice( indexToSliceRed  ).map( die => [die.face])
-        // Add full set of randomized faces for each rerolling Red die
-        for (let i=0; i<redRerolls; i++) { 
-            redFaceSetList.push( blacks>0 ? makeBlacked(RED_DIE.faces) : RED_DIE.faces )
-        }
- 
-        
         // Create list of static/randomized faces of Black dice
         // Start with list of dice faces that are not being rerolled, extracting just the face info from each die
         const indexToSliceBlack = (blackRerolls < blackList.length) ? blackRerolls - blackList.length : blackList.length
         const blackFaceSetList:Array<PowerDieFace[]> = blackList.slice( indexToSliceBlack ).map( die => [die.face])
-        // Add full set of randomized faces for each rerolling black die
-        for (let i=0; i<blackRerolls; i++) { blackFaceSetList.push( BLACK_DIE.faces) }
+        
+        // Simpler case where have all of one type of Token
+        if ( !(rerolls > 0 && blacks > 0) ) {
+            // Add full set of randomized faces for each rerolling Red die
+            for (let i=0; i<redRerolls; i++) { 
+                redFaceSetList.push( blacks>0 ? makeBlacked(RED_DIE.faces) : RED_DIE.faces )
+            }
+    
+            
+            // Add full set of randomized faces for each rerolling black die
+            for (let i=0; i<blackRerolls; i++) {
+                blackFaceSetList.push( blacks>0 ? makeBlacked(BLACK_DIE.faces) :BLACK_DIE.faces)
+            }
+        // More complex case with both types of tokens
+        } else {
 
+        }
 
         // WHITE face sets
 
@@ -311,9 +322,12 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         
     } 
     
-    const finalResults = {
+    const finalResults:BestRerollReturn = {
         success: bestSuccessChance,
-        ids: idsToReroll
+        ids: {
+            regular: idsToReroll, 
+            blacked: []
+        }
     }
 
     return finalResults
