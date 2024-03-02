@@ -292,41 +292,53 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
     // When not using the recusion result, build final return data
 
     // Use final results to determine IDs of best dice to reroll
-    let idsToReroll:Array<number> = []
+    let idsToRerollRegular:Array<number> = []
+    let idsToRerollBlacked:Array<number> = []
 
-    // Add Red dice ids starting from bottom of list
-    for ( let i=0; i<bestSet.r; i++ ) {
-        idsToReroll.push( redList[i].id )
+    if ( blacks > 0 ) {
+        // Add Red dice ids starting from bottom of list
+        for ( let i=0; i<bestSet.r; i++ ) {
+            idsToRerollBlacked.push( redList[i].id )
+        }
+
+        // Add Black dice ids starting from bottom of list
+        for ( let i=0; i<bestSet.b; i++ ) {
+            idsToRerollBlacked.push( blackList[i].id )
+        }
+    } else {
+        // Add Red dice ids starting from bottom of list
+        for ( let i=0; i<bestSet.r; i++ ) {
+            idsToRerollRegular.push( redList[i].id )
+        }
+
+        // Add Black dice ids starting from bottom of list
+        for ( let i=0; i<bestSet.b; i++ ) {
+            idsToRerollRegular.push( blackList[i].id )
+        }
     }
-
-    // Add Black dice ids starting from bottom of list
-    for ( let i=0; i<bestSet.b; i++ ) {
-        idsToReroll.push( blackList[i].id )
-    }
-
     // Add White dice ids starting from bottom of list
     for ( let i=0; i<bestWhiteIndexset.length; i++ ) {
-        idsToReroll.push( whiteList[bestWhiteIndexset[i]].id )
+        idsToRerollRegular.push( whiteList[bestWhiteIndexset[i]].id )
     }
 
     
     // Make sure number of returned dice don't exceed available rerolls
-    if ( idsToReroll.length > totalRerolls ) {
+    if ( idsToRerollRegular.length > totalRerolls ) {
         // TODO: Add better error handling
         console.error("ERROR: Rerolls suggested exceed number available")
         console.error( `REROLLS: ${rerolls}` )
         console.error( `BLACKS: ${blacks}` )
         console.error("ID LIST GIVEN:")
-        console.error( idsToReroll )
-        console.error( `LENGTH: ${idsToReroll.length}` )
+        console.error( idsToRerollRegular )
+        console.error( `LENGTH: ${idsToRerollRegular.length}` )
         
     } 
     
     const finalResults:BestRerollReturn = {
         success: bestSuccessChance,
         ids: {
-            regular: idsToReroll, 
-            blacked: []
+            regular: idsToRerollRegular, 
+            blacked: idsToRerollBlacked
         }
     }
 
