@@ -12,9 +12,14 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
+### 1.5.2
+
+* Implemented partial funcitonality for Black Tokens, only works if all reroll sources are one type (regular/Black), or enough Blacks to cover all needed rerolls
+* Black Token targets are indicated by a purple highlight instead of the pale blue for standard
+
 ### 1.5.1
 
-* Implemnted full functionality for Hope tokens
+* Implemented full functionality for Hope tokens
 
 ### 1.4.1
 
