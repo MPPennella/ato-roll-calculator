@@ -3,6 +3,12 @@
     padding: 8px;
 }
 
+.DieWrapperHoriz {
+    display: flex;
+    padding: 8px;
+    width: 100%;
+}
+
 .DieBox {
     display:grid;
     height: 80px;
@@ -14,6 +20,16 @@
     background-color: #a01925;
     border-radius: 10px;
     border: 1px solid black;
+}
+
+.DieWrapperHoriz > .DieBox {
+    height: 50px;
+    width: 50px;
+}
+
+.FaceSelectPanel {
+    display: flex;
+    flex-direction: row;
 }
 
 .HighlightedDie {
@@ -52,6 +68,14 @@
     border: none;
     background-color: transparent;
     font-weight: 900;
+}
+
+.DieWrapperHoriz > * > .RemoveButton {
+    height: 100%;
+    width: 100%;
+    justify-self: center;
+    margin: 0px;
+    font-size: 15px;
 }
 
 .BlackDie > .RemoveButton {
