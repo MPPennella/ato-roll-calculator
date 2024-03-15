@@ -12,6 +12,10 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
+### 1.5.3
+
+* Implemented full functionality for Black Tokens - works with all types of Power Die, and in combination with regular Power Rerolls
+
 ### 1.5.2
 
 * Implemented partial funcitonality for Black Tokens, only works if all reroll sources are one type (regular/Black), or enough Blacks to cover all needed rerolls
