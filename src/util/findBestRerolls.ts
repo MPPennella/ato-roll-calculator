@@ -21,9 +21,9 @@ type BestRerollReturn = {
 // Holds the number each type of dice we want to reroll
 // r/b/w are short for Red/Black/White
 type RerollDice = {
-    r: number,
-    b: number,
-    w: number
+    red: number,
+    black: number,
+    white: number
 }
 
 /**
@@ -79,8 +79,17 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
 
     const numDice = diceInfo.length
 
-    // If more rerolls than dice, set rerolls to number of dice
-    if ( totalRerolls > numDice ) totalRerolls = numDice
+    // If more rerolls than dice, set max rerolls to number of dice, and adjust reroll/blacks values to not exceed new cap, prioritizing removing regular rerolls
+    // This prevents excessive iteration down the line
+    if ( totalRerolls > numDice ) {
+        totalRerolls = numDice
+        if (blacks >= totalRerolls) {
+            blacks = totalRerolls
+            rerolls = 0
+        } else {
+            rerolls = totalRerolls - blacks
+        }
+    }
     
     // Find best single die to reroll
     // - Look at each color of die and find the worst face among them to limit search
@@ -106,12 +115,51 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
 
     // Make trackers for best success and what combination produced it
     let bestSuccessChance:number = 0
-    let bestSet:RerollDice = {r:0, b:0, w:0}
+    let bestSets = {
+        regular:{red:0, black:0, white:0},
+        blacked:{red:0, black:0, white:0} 
+    }
     let bestWhiteIndexset : Array<number> = []
 
     // Go through each eligible combination and test
     for ( const rerollSet of rerollCombos ) {
-        const { r:redRerolls, b:blackRerolls, w:whiteRerolls } = rerollSet
+        const { red:redRerolls, black:blackRerolls, white:whiteRerolls } = rerollSet
+
+        // Find split of normal/blacked rerolls to use on the set of dice being rerolled. 
+        // Black Tokens are always prioritized on dice in order White > Black > Red due to higher-tier dice having a greater chance of rolling a face with >0 Potentials
+
+        let regRerollSet:RerollDice = {red:0, black:0, white:0}
+        let blackedRerollSet:RerollDice = {red:0, black:0, white:0}
+        let remBlacks = blacks
+
+        if (whiteRerolls > 0) {
+            if (remBlacks >= whiteRerolls) {
+                blackedRerollSet.white = whiteRerolls
+                remBlacks -= whiteRerolls
+            } else {
+                regRerollSet.white = whiteRerolls - remBlacks
+                blackedRerollSet.white = remBlacks
+                remBlacks = 0
+            }
+        }
+        if (blackRerolls > 0) {
+            if (remBlacks >= blackRerolls) {
+                blackedRerollSet.black = blackRerolls
+                remBlacks -= blackRerolls
+            } else {
+                regRerollSet.black = blackRerolls - remBlacks
+                blackedRerollSet.black = remBlacks
+                remBlacks = 0
+            }
+        }
+        if (redRerolls > 0) {
+            if (remBlacks >= redRerolls) {
+                blackedRerollSet.red = redRerolls
+            } else {
+                regRerollSet.red = redRerolls - remBlacks
+                blackedRerollSet.red = remBlacks
+            }
+        }
 
         // BLACK and RED face sets
 
@@ -124,37 +172,26 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         const indexToSliceBlack = (blackRerolls < blackList.length) ? blackRerolls - blackList.length : blackList.length
         const blackFaceSetList:Array<PowerDieFace[]> = blackList.slice( indexToSliceBlack ).map( die => [die.face])
         
-        // Simpler case where have all of one type of Token or more enough Blacks to cover all dice
-        if ( !(rerolls > 0 && blacks > 0) || blacks >= redRerolls+blackRerolls ) {
-            // Add full set of randomized faces for each rerolling Red die
-            for (let i=0; i<redRerolls; i++) { 
-                redFaceSetList.push( blacks>0 ? makeBlacked(RED_DIE.faces) : RED_DIE.faces )
-            }
-    
-            
-            // Add full set of randomized faces for each rerolling black die
-            for (let i=0; i<blackRerolls; i++) {
-                blackFaceSetList.push( blacks>0 ? makeBlacked(BLACK_DIE.faces) :BLACK_DIE.faces)
-            }
-        // More complex case with both types of tokens
-        } else {
-            // TODO: Implement for case of mixed rerolls
-            const leftovers = redRerolls + blackRerolls - blacks
-            for ( let i = 0; i<= leftovers; i++ ) {
-                const rbl = redRerolls - i
-                const bbl = blackRerolls - (leftovers - i)
-
-                console.log("----")
-                console.log(`INITIAL: Red ${redRerolls}   Blk ${blackRerolls}`)
-                console.log(`RED:   Reg ${redRerolls-rbl}   Blk ${rbl}`)
-                console.log(`BLACK: Reg ${blackRerolls-bbl}   Blk ${bbl}`)
-            }
-
+        // Add appropriate sets of regular/blacked reroll faces for Red/Black dice that are being rerolled
+        // RED
+        for (let i=0; i<regRerollSet.red; i++) {
+            redFaceSetList.push( RED_DIE.faces )
+        }
+        for (let i=0; i<blackedRerollSet.red; i++) {
+            redFaceSetList.push( makeBlacked(RED_DIE.faces) )
         }
 
-        // WHITE face sets
-        // TODO: Implement Black Tokens for White dice
+        // BLACK
+        for (let i=0; i<regRerollSet.black; i++) {
+            blackFaceSetList.push( BLACK_DIE.faces )
+        }
+        for (let i=0; i<blackedRerollSet.black; i++) {
+            blackFaceSetList.push( makeBlacked(BLACK_DIE.faces) )
+        }
 
+
+        // WHITE face sets
+        
         // As White Power Die faces can't be strictly ordered, need to find every combination of N faces to reroll and try them all
         let whiteFaceSetListCombos: Array< Array< PowerDieFace[] > >= []
         let indexCombinationList : Array< Array< number > > = []
@@ -168,13 +205,13 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
             // If all are being rerolled, fill list with randomized faces
             } else if ( whiteRerolls === whiteList.length ) {
                 const tempFaceSetList = []
-                for (let i=0; i<whiteRerolls; i++) { tempFaceSetList.push( WHITE_DIE.faces ) }
+                // Push a number that are blacked based on the reroll set, the rest regular
+                for (let i=0; i<whiteRerolls; i++) { tempFaceSetList.push( i<blackedRerollSet.white ? makeBlacked( WHITE_DIE.faces) : WHITE_DIE.faces ) }
                 whiteFaceSetListCombos.push( tempFaceSetList )
                 indexCombinationList = [ whiteList.map( (e, i:number) => i) ]
 
             // If somewhere in between, need to find the possible combos of static/re-rolled faces
             } else {
-                const {length} = whiteList
                 
                 // Recursive function to generate combinations of indices
                 function findIndCombins ( startIndex:number, endIndex:number, choices:number ) : Array< Array<number> >  {
@@ -231,16 +268,22 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
                     return indexArrays
                 }
 
+                const {length: wLength} = whiteList
+                
                 // Find all the combinations of indices that will be rerolled
-                indexCombinationList = findIndCombins(0, length-1, whiteRerolls)
+                indexCombinationList = findIndCombins(0, wLength-1, whiteRerolls)
 
                 // Iterate through and create the Face Set Lists from the indices
                 whiteFaceSetListCombos = indexCombinationList.map( (list:Array<number>) : Array<Array<PowerDieFace>> => {
                     const newFaceSetList : Array<Array<PowerDieFace>> = []
-                    for ( let i=0; i<whiteList.length; i++) {
+                    let count = 0
+                    for ( let i=0; i<wLength; i++) {
                         if (list.includes(i) ) {
-                            newFaceSetList.push( WHITE_DIE.faces )
+                            // Add a full set of faces if ID was on list, blacking them if available
+                            newFaceSetList.push( (count < blackedRerollSet.white ) ? makeBlacked(WHITE_DIE.faces) : WHITE_DIE.faces )
+                            count++
                         } else {
+                            // Otherwise, add the existing face as the only option
                             newFaceSetList.push( [whiteList[i].face] )
                         }
                     }
@@ -263,7 +306,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
             // Compare to previous best and update if better
             if ( successPcnt > bestSuccessChance ) {
                 bestSuccessChance = successPcnt
-                bestSet = rerollSet
+                bestSets = {regular: regRerollSet, blacked: blackedRerollSet}
             }
         } else {
             // If White, then iterate through list of combinations
@@ -275,7 +318,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
                 // Compare to previous best and update if better
                 if ( successPcnt > bestSuccessChance ) {
                     bestSuccessChance = successPcnt
-                    bestSet = rerollSet
+                    bestSets = {regular: regRerollSet, blacked: blackedRerollSet}
                     bestWhiteIndexset = indexCombinationList[i]
                 }
             }
@@ -309,35 +352,35 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
 
     if ( blacks > 0 ) {
         // Add Red dice ids starting from bottom of list
-        for ( let i=0; i<bestSet.r; i++ ) {
-            idsToRerollBlacked.push( redList[i].id )
+        for ( let i=0; i < (bestSets.regular.red+bestSets.blacked.red); i++ ) {
+            i<bestSets.blacked.red ? idsToRerollBlacked.push( redList[i].id ) :  idsToRerollRegular.push( redList[i].id )
         }
 
         // Add Black dice ids starting from bottom of list
-        for ( let i=0; i<bestSet.b; i++ ) {
-            idsToRerollBlacked.push( blackList[i].id )
+        for ( let i=0; i < (bestSets.regular.black+bestSets.blacked.black); i++ ) {
+            i<bestSets.blacked.black ? idsToRerollBlacked.push( blackList[i].id ) : idsToRerollRegular.push( blackList[i].id )
         }
     } else {
         // Add Red dice ids starting from bottom of list
-        for ( let i=0; i<bestSet.r; i++ ) {
+        for ( let i=0; i<bestSets.regular.red; i++ ) {
             idsToRerollRegular.push( redList[i].id )
         }
 
         // Add Black dice ids starting from bottom of list
-        for ( let i=0; i<bestSet.b; i++ ) {
+        for ( let i=0; i<bestSets.regular.black; i++ ) {
             idsToRerollRegular.push( blackList[i].id )
         }
     }
 
-    // TODO: Make White dice recognize Black Tokens
     // Add White dice ids starting from bottom of list
     for ( let i=0; i<bestWhiteIndexset.length; i++ ) {
-        idsToRerollRegular.push( whiteList[bestWhiteIndexset[i]].id )
+        const typeToReroll = (i<bestSets.blacked.white) ? idsToRerollBlacked : idsToRerollRegular
+        typeToReroll.push(  whiteList[bestWhiteIndexset[i]].id )
     }
 
     
     // Make sure number of returned dice don't exceed available rerolls
-    if ( idsToRerollRegular.length > totalRerolls ) {
+    if ( idsToRerollRegular.length + idsToRerollBlacked.length > totalRerolls ) {
         // TODO: Add better error handling
         console.error("ERROR: Rerolls suggested exceed number available")
         console.error( `REROLLS: ${rerolls}` )
@@ -378,6 +421,15 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
  * @returns Array<RerollDice>, each element is a different combination of values of dice to reroll.
  */
 function generateRerollCombos( rerolls:number, redMax:number, blackMax:number, whiteMax:number) : Array<RerollDice> {
+    // If enough rerolls to reroll all dice, simply return array with single RerollDice object with maxed values
+    if ( rerolls >= (redMax+blackMax+whiteMax)) {
+        return [{
+            red: redMax,
+            black: blackMax,
+            white: whiteMax
+        }]
+    }
+
     // Array to store the different combinations of rerolling dice we want to try
     const rerollCombos:Array<RerollDice> = []
 
@@ -403,9 +455,9 @@ function generateRerollCombos( rerolls:number, redMax:number, blackMax:number, w
 
                 // Allocate reroll counts
                 const newReroll:RerollDice = {
-                    r: redsToReroll,
-                    b: blacksToReroll,
-                    w: whitesToReroll
+                    red: redsToReroll,
+                    black: blacksToReroll,
+                    white: whitesToReroll
                 }
                 
                 // Add to list of reroll combos to investigate
@@ -414,9 +466,9 @@ function generateRerollCombos( rerolls:number, redMax:number, blackMax:number, w
         } else { 
             // Allocate reroll counts (only red are non-zero in this condition)
             const newReroll:RerollDice = {
-                r: redsToReroll,
-                b: 0,
-                w: 0
+                red: redsToReroll,
+                black: 0,
+                white: 0
             }
 
             // Add to list of reroll combos to investigate
