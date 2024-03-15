@@ -18,6 +18,9 @@ function ActiveDie (
         upActFace:(id:number, faceLabel:string, newActiveFaceSet:PowerDieFace[])=>void
     }) : React.JSX.Element {
     
+    const [selected, setSelected] = React.useState(0)
+    
+    
     // Map to correspond option values to face objects
     const faceMap = new Map< string, PowerDieFace>()
     faceOptions.forEach( (face:PowerDieFace, i:number) => {
@@ -77,8 +80,7 @@ function ActiveDie (
         }
 
         // Update states and propagate change info
-        // setActiveFace(optionId)
-        console.log(dieID, optionId, newActiveFaceSet)
+        setSelected(Number.parseInt(optionId))
         upActFace(dieID, optionId, newActiveFaceSet )
     }
 
@@ -120,8 +122,8 @@ function ActiveDie (
         for (let i=0; i<faceOptions.length; i++) {
             let curr = faceOptions[i]
             faceOptionComponents.push(
-                <ActiveDieFaceSelector key={i} index={i} >
-                    { `P${curr.power} | B${curr.potential}${ cycle>=3 ? ` | D${curr.dot}` : "" }` }
+                <ActiveDieFaceSelector key={i} index={i} selected={ selected===i ? true : false} >
+                    { `P${curr.power}`} <br/> {`B${curr.potential}`}  { cycle>=3 ? <br/>:""} {`${ cycle>=3 ? `D${curr.dot}` : "" }` }
                 </ActiveDieFaceSelector>
             )
         }
