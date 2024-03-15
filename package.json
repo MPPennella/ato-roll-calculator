@@ -1,6 +1,6 @@
 {
   "name": "ato_roll_calculator",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "homepage": "https://mppennella.github.io/ato-roll-calculator/",
   "private": true,
   "dependencies": {
