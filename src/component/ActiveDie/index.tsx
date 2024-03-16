@@ -18,7 +18,7 @@ function ActiveDie (
         upActFace:(id:number, faceLabel:string, newActiveFaceSet:PowerDieFace[])=>void
     }) : React.JSX.Element {
     
-    const [selected, setSelected] = React.useState(0)
+    const [selected, setSelected] = React.useState(-1)
     
     
     // Map to correspond option values to face objects
@@ -70,7 +70,6 @@ function ActiveDie (
     function updateSelectedHoriz(e: React.MouseEvent<HTMLDivElement>):void {
         const target = e.target as HTMLDivElement
         const optionId = target.dataset.index as string
-        console.log(`INDEX: ${optionId}`)
         
         // By default treat as random selected
         let newActiveFaceSet = faceOptions
@@ -123,7 +122,8 @@ function ActiveDie (
             let curr = faceOptions[i]
             faceOptionComponents.push(
                 <ActiveDieFaceSelector key={i} index={i} selected={ selected===i ? true : false} >
-                    { `P${curr.power}`} <br/> {`B${curr.potential}`}  { cycle>=3 ? <br/>:""} {`${ cycle>=3 ? `D${curr.dot}` : "" }` }
+                    {/* { `P${curr.power}`} <br/> {`B${curr.potential}`}  { cycle>=3 ? <br/>:""} {`${ cycle>=3 ? `D${curr.dot}` : "" }` } */}
+                    { `P•B${cycle>=3 ? "•D":""}`} <br/> {`${curr.power}•${curr.potential}${cycle>=3 ? `•${curr.dot}` : ""}`} 
                 </ActiveDieFaceSelector>
             )
         }

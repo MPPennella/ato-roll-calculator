@@ -1,10 +1,22 @@
 .FaceOptionBox {
-    border: 2px solid blue;
-    /* height:30px; */
-    width: 30px;
+    display: flex;	
+	flex-direction: row;	
+	align-items: center;
+    justify-content: center;
+    border: 1px solid #999999;
+    background-color: #eeeeee;
+    border-radius: 5px;
+    height:40px;
+    width: 35px;
     margin:3px;
+    line-height: 0.9rem;
+    font-size: 12px;
+    font-weight: bold;
 }
 
 .BoxSelected {
-    border-color: red;
+    border-width: 2px;
+    border-color: #555555;
+    background-color: lightgray;
+    margin: 2px;
 }
