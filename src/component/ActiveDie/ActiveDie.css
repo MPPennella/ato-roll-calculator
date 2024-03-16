@@ -5,7 +5,7 @@
 
 .DieWrapperHoriz {
     display: flex;
-    padding: 8px;
+    padding: 3px;
     margin-left: 100%;
     margin-right: 100%;
 }
@@ -26,9 +26,9 @@
 .DieWrapperHoriz > .DieBox {
     height: 50px;
     width: 50px;
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: 15px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 10px;
     margin-right: 5px;
 }
 
@@ -38,6 +38,7 @@
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 5px;
+    margin-right: 5px;
 }
 
 .HighlightedDie {
@@ -46,7 +47,9 @@
 }
 
 .DieWrapperHoriz > .HighlightedDie {
-    margin-left: 11px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 6px;
     margin-right: 1px;
 }
 
