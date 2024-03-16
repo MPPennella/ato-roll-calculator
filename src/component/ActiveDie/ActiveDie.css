@@ -3,6 +3,13 @@
     padding: 8px;
 }
 
+.DieWrapperHoriz {
+    display: flex;
+    padding: 3px;
+    margin-left: 100%;
+    margin-right: 100%;
+}
+
 .DieBox {
     display:grid;
     height: 80px;
@@ -16,9 +23,34 @@
     border: 1px solid black;
 }
 
+.DieWrapperHoriz > .DieBox {
+    height: 50px;
+    width: 50px;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+.FaceSelectPanel {
+    display: flex;
+    flex-direction: row;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
 .HighlightedDie {
     margin-top: 1px;
     margin-bottom: 6px;
+}
+
+.DieWrapperHoriz > .HighlightedDie {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    margin-left: 6px;
+    margin-right: 1px;
 }
 
 .HighlightedDieRegular {
@@ -52,6 +84,14 @@
     border: none;
     background-color: transparent;
     font-weight: 900;
+}
+
+.DieWrapperHoriz > * > .RemoveButton {
+    height: 100%;
+    width: 100%;
+    justify-self: center;
+    margin: 0px;
+    font-size: 15px;
 }
 
 .BlackDie > .RemoveButton {
