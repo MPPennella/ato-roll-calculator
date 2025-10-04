@@ -32,12 +32,27 @@
     margin-right: 15px;
 }
 
-.FaceSelectPanel {
-    display: flex;
-    flex-direction: row;
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: 5px;
+.RedDie {
+    background-color: #a01925;
+}
+
+.BlackDie {
+    background-color: black;
+    color: white;
+}
+
+.WhiteDie {
+    background-color: white;
+}
+
+.MortalDie {
+    background-color: gray;
+}
+
+.DieWrapperHoriz > .MortalDie {
+    height: 70px;
+    width: 70px;
+    margin-left: 10px;
     margin-right: 5px;
 }
 
@@ -66,30 +81,6 @@
     border: 5px solid #8800ff;
 }
 
-.RedDie {
-    background-color: #a01925;
-}
-
-.BlackDie {
-    background-color: black;
-    color: white;
-}
-
-.WhiteDie {
-    background-color: white;
-}
-
-.MortalDie {
-    background-color: gray;
-}
-
-.DieWrapperHoriz > .MortalDie {
-    height: 70px;
-    width: 70px;
-    margin-left: 10px;
-    margin-right: 5px;
-}
-
 .RemoveButton {
     height: 24px;
     width: 24px;
@@ -112,6 +103,15 @@
 
 .BlackDie > .RemoveButton {
     color: #a01925;
+}
+
+.FaceSelectPanel {
+    display: flex;
+    flex-direction: row;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 @media (prefers-color-scheme: dark) {
