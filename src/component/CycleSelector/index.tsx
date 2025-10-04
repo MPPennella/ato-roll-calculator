@@ -10,7 +10,7 @@ function CycleSelector ( {cycle, cycleUpdater} : {cycle:number, cycleUpdater:(nu
             <button className={"CycleButton" + ( (cycle===2)?" ActiveCycle":"" ) } onClick={(e) => cycleUpdater( 2 )}>II</button>            
             <button className={"CycleButton" + ( (cycle===3)?" ActiveCycle":"" ) } onClick={(e) => cycleUpdater( 3 )}>III</button>
             <button className={"CycleButton" + ( (cycle===4)?" ActiveCycle":"" ) } onClick={(e) => cycleUpdater( 4 )}>IV</button>
-            {/* <button className={"CycleButton" + ( (cycle===5)?" ActiveCycle":"" ) } onClick={(e) => cycleUpdater( 5 )}>V</button> */}
+            <button className={"CycleButton" + ( (cycle===5)?" ActiveCycle":"" ) } onClick={(e) => cycleUpdater( 5 )}>V</button>
         </div>
         
     )

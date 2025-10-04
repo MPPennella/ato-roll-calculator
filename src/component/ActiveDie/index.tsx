@@ -33,6 +33,7 @@ function ActiveDie (
         case "red": colorTag = "RedDie"; break;
         case "black": colorTag = "BlackDie"; break;
         case "white": colorTag = "WhiteDie"; break;
+        case "mortal": colorTag = "MortalDie"; break;
         default: colorTag = ""; break;
     }
 

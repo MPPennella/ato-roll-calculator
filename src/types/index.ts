@@ -2,7 +2,8 @@
 export enum DIE_COLORS {
     RED = 'red',
     BLACK = 'black',
-    WHITE = 'white'
+    WHITE = 'white',
+    MORTAL = 'mortal'
 }
 
 // type DIE_COLORS = "red" | "black" | "white"

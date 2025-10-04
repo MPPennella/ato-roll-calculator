@@ -4,7 +4,8 @@ import bubbleSort from "./bubblesort";
 // Compares two colors, and returns
 // - true : if first is greater
 // - false : if second is greater or equal
-// Order of colors is "white" > "black" > "red"
+// Order of colors is "mortal > white" > "black" > "red"
+// Logic allows for multiple Mortal dice, even though that is not possible within game rules
 function compareColors( trackerA:PowerDieTracker, trackerB:PowerDieTracker ) : Boolean {
     const colorA = trackerA.die.color
     const colorB = trackerB.die.color
@@ -21,8 +22,14 @@ function compareColors( trackerA:PowerDieTracker, trackerB:PowerDieTracker ) : B
     } else if ( colorB === "black" ) {
         // Now if B is Black, is less than remaining options for A
         return true
+    } else if ( colorA === "white" ) {
+        // Now if A is White, can't be greater than any remaining option for B
+        return false
+    } else if ( colorB === "white" ) {
+        // Now if B is White, is less than remaining options for A
+        return true
     } 
-    // Only remaining option is both must be White if we reached here, which is equal, not greater
+    // Only remaining option is both must be Mortal if we reached here, which is equal, not greater
     return false
 }
 

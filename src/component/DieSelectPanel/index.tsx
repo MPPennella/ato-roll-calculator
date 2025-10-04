@@ -1,12 +1,13 @@
 import React from 'react'
 import './DieSelectPanel.css'
 import DieCreator from '../DieCreator'
-import ConditionLabel from '../ConditionLabel'
+// import ConditionLabel from '../ConditionLabel'
 
 function DieSelectPanel ( 
-    {diceComponents, totalRerolls, rerollSuccess, addDie, findRerolls} 
+    {cycle, diceComponents, totalRerolls, rerollSuccess, addDie, findRerolls} 
     :
     {
+        cycle: number,
         diceComponents: Array<React.JSX.Element>,
         totalRerolls: number,
         rerollSuccess: number,
@@ -32,6 +33,8 @@ function DieSelectPanel (
                 <DieCreator onClick={addDie} color="Red" />
                 <DieCreator onClick={addDie} color="Black" />
                 <DieCreator onClick={addDie} color="White" />
+                { (cycle>=5)?<DieCreator onClick={addDie} color="Mortal" />:null}
+                {}
             </div>
             {renderDice(diceComponents) }
             {/* Dice Total: {diceComponents.length} */}

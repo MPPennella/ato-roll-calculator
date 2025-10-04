@@ -10,7 +10,7 @@ import CycleSelector from '../CycleSelector'
 // Types
 import { DieInfo, PowerDie, PowerDieFace, PowerDieTracker } from '../../types';
 // Data and processing utilities
-import { RED_DIE, BLACK_DIE, WHITE_DIE } from '../../data/PowerDiceData';
+import { RED_DIE, BLACK_DIE, WHITE_DIE, MORTAL_DIE } from '../../data/PowerDiceData';
 import dieOutcomes from '../../util/dieOutcomes';
 import thresholdCheck from '../../util/thresholdCheck';
 import averageResult from '../../util/averageResult';
@@ -75,25 +75,52 @@ function App() {
   // Adds a new die to the pool, handling input of which type (color) to add
   function handleAddNewDie( color:string ) : void {
     // Maximum number of dice to render
-    const DICE_LIMIT = 8;
+    // 'TOTAL' is for performance reasons, color-specific limits are based on physical number of dice available
+    const DICE_LIMIT = {
+      TOTAL: 8,
+      RED: 8,
+      BLACK: 4,
+      WHITE: 3,
+      MORTAL: 1
+    }
     const diceList = diceTrackRef.current
     
-    // Don't add dice if already at limit in pool
-    // Guard against performance issues with lots of dice
-    if (diceList.length>=DICE_LIMIT) return
+    // If diceList is non-empty, check if limits are already met
+    if ( diceList.length > 0 ) {
+      // Don't add dice if already at total limit in pool
+      // Guards against performance issues with lots of dice
+      if (diceList.length>=DICE_LIMIT.TOTAL) return
+
+      // Find composition of colors of existing dice in list
+      let existingDice = {
+        red: 0,
+        black: 0,
+        white: 0,
+        mortal: 0
+      }
+
+      for ( const dieTracker of diceList ) {
+        if (dieTracker.die.color === 'red') existingDice.red++
+        if (dieTracker.die.color === 'black') existingDice.black++
+        if (dieTracker.die.color === 'white') existingDice.white++
+        if (dieTracker.die.color === 'mortal') existingDice.mortal++
+      }
+
+      // Check if color attempting to be added is already at limit: cancel addition if so
+      if ( color === "Red" && existingDice.red >= DICE_LIMIT.RED ) return
+      if ( color === "Black" && existingDice.black >= DICE_LIMIT.BLACK ) return
+      if ( color === "White" && existingDice.white >= DICE_LIMIT.WHITE ) return
+      if ( color === "Mortal" && existingDice.mortal >= DICE_LIMIT.MORTAL ) return
+    }
 
     // Try to find die info in data matching color specified
     let newDie:PowerDie|undefined = undefined
-    // for (const die of PowerDiceData.data as Array<PowerDie> ) {
-    //   if (die.color === color.toLowerCase()) {
-    //     newDie = die
-    //   }
-    // }
 
     switch (color) {
       case "Red": newDie = RED_DIE; break;
       case "Black": newDie = BLACK_DIE; break;
       case "White": newDie = WHITE_DIE; break;
+      case "Mortal": newDie = MORTAL_DIE; break;
       default: break;
     }
     
@@ -259,6 +286,7 @@ function App() {
   }
 
   const dieSelectProps = {
+    cycle: cycle,
     diceComponents: diceTracker.map( (dieTracker) => {
       return <ActiveDie
         key = {dieTracker.id}
@@ -289,7 +317,7 @@ function App() {
     const cycle = cookies.cycle
     // Cycle must be defined, a number, and between 1 and 5
     if (cycle === undefined || isNaN(cycle) || cycle<1 || cycle>5 ) setCookie("cycle",1)
-  },[])
+  },[cookies.cycle, setCookie])
 
   // Create display components and pass props
   return (

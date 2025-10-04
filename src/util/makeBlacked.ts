@@ -1,4 +1,4 @@
-import { PowerDie, PowerDieFace } from "../types";
+import { PowerDieFace } from "../types";
 
 /**
  * Function that converts the results of throwing each face of a PowerDie to account for that die being under the 
