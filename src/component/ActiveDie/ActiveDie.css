@@ -28,8 +28,8 @@
     width: 50px;
     margin-top: 4px;
     margin-bottom: 4px;
-    margin-left: 10px;
-    margin-right: 5px;
+    margin-left: 20px;
+    margin-right: 15px;
 }
 
 .FaceSelectPanel {
@@ -49,6 +49,11 @@
 .DieWrapperHoriz > .HighlightedDie {
     margin-top: 0px;
     margin-bottom: 0px;
+    margin-left: 16px;
+    margin-right: 11px;
+}
+
+.DieWrapperHoriz > .HighlightedDie.MortalDie {
     margin-left: 6px;
     margin-right: 1px;
 }
@@ -81,6 +86,8 @@
 .DieWrapperHoriz > .MortalDie {
     height: 70px;
     width: 70px;
+    margin-left: 10px;
+    margin-right: 5px;
 }
 
 .RemoveButton {
