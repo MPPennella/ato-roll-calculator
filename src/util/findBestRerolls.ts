@@ -312,7 +312,10 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         // As Mortal Power Die faces can't be strictly ordered, need to find every combination of N faces to reroll and try them all
         // However, there should be at most one Mortal die
         // ******USING ASSUMPTION THAT ONLY 0 OR 1 MORTAL DIE EXISTS******
-        let mortalFaceSetList:  Array< PowerDieFace[] >= []
+
+        const indexToSliceMortal = (mortalRerolls < mortalList.length) ? mortalRerolls - mortalList.length : mortalList.length
+        const mortalFaceSetList:Array<PowerDieFace[]> = mortalList.slice( indexToSliceMortal  ).map( die => [die.face])
+        // const mortalFaceSetList:  Array< PowerDieFace[] >= []
         for (let i=0; i<regRerollSet.mortal; i++) {
             mortalFaceSetList.push( MORTAL_DIE.faces )
         }
