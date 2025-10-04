@@ -6,7 +6,7 @@ import makeBlacked from "./makeBlacked"
 // Type imports
 import { DieInfo, PowerDieFace } from "../types/"
 // Data import
-import {RED_DIE, BLACK_DIE, WHITE_DIE} from '../data/PowerDiceData'
+import {RED_DIE, BLACK_DIE, WHITE_DIE, MORTAL_DIE} from '../data/PowerDiceData'
 
 
 // Type Definitions
@@ -19,11 +19,12 @@ type BestRerollReturn = {
 }
 
 // Holds the number each type of dice we want to reroll
-// r/b/w are short for Red/Black/White
+// r/b/w/m are short for Red/Black/White/Mortal
 type RerollDice = {
     red: number,
     black: number,
-    white: number
+    white: number,
+    mortal: number
 }
 
 /**
@@ -100,38 +101,50 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
     const redList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "red"))
     const blackList : Array<DieInfo> = sortPowerDice(filterDiceByColor(diceInfo, "black"))
     const whiteList : Array<DieInfo> = filterDiceByColor(diceInfo, "white")
+    const mortalList : Array<DieInfo> = filterDiceByColor(diceInfo, "mortal")
 
     // Create reference for maximum number of each color that could be rerolled
     const redMax : number = redList.length
     const blackMax : number = blackList.length
     const whiteMax : number = whiteList.length
+    const mortalMax : number = mortalList.length
     
     // Choose best dice to reroll by trying different combinations of lowest dice from each color pool to reroll (for White all must be considered)
     
     // Find each different combination of dice to reroll with available number of rerolls
-    const rerollCombos = generateRerollCombos(totalRerolls, redMax, blackMax, whiteMax)
+    const rerollCombos = generateRerollCombos(totalRerolls, redMax, blackMax, whiteMax, mortalMax)
 
     // Check each combination to see how good the result is and compare
 
     // Make trackers for best success and what combination produced it
     let bestSuccessChance:number = 0
     let bestSets = {
-        regular:{red:0, black:0, white:0},
-        blacked:{red:0, black:0, white:0} 
+        regular:{red:0, black:0, white:0, mortal: 0},
+        blacked:{red:0, black:0, white:0, mortal: 0} 
     }
     let bestWhiteIndexset : Array<number> = []
 
     // Go through each eligible combination and test
     for ( const rerollSet of rerollCombos ) {
-        const { red:redRerolls, black:blackRerolls, white:whiteRerolls } = rerollSet
+        const { red:redRerolls, black:blackRerolls, white:whiteRerolls, mortal:mortalRerolls } = rerollSet
 
         // Find split of normal/blacked rerolls to use on the set of dice being rerolled. 
-        // Black Tokens are always prioritized on dice in order White > Black > Red due to higher-tier dice having a greater chance of rolling a face with >0 Potentials
+        // Black Tokens are always prioritized on dice in order Mortal = White > Black > Red due to higher-tier dice having a greater chance of rolling a face with >0 Potentials
 
-        let regRerollSet:RerollDice = {red:0, black:0, white:0}
-        let blackedRerollSet:RerollDice = {red:0, black:0, white:0}
+        let regRerollSet:RerollDice = {red:0, black:0, white:0, mortal: 0}
+        let blackedRerollSet:RerollDice = {red:0, black:0, white:0, mortal: 0}
         let remBlacks = blacks
 
+        if (mortalRerolls > 0) {
+            if (remBlacks >= mortalRerolls) {
+                blackedRerollSet.mortal = mortalRerolls
+                remBlacks -= mortalRerolls
+            } else {
+                regRerollSet.mortal = mortalRerolls - remBlacks
+                blackedRerollSet.mortal = remBlacks
+                remBlacks = 0
+            }
+        }
         if (whiteRerolls > 0) {
             if (remBlacks >= whiteRerolls) {
                 blackedRerollSet.white = whiteRerolls
@@ -294,13 +307,28 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
             }
         }
 
-        // Get list of just Red/Black Face Set Lists
-        const inputRB:Array<PowerDieFace[]> = redFaceSetList.concat(blackFaceSetList)
+
+        // MORTAL face sets
+        // As Mortal Power Die faces can't be strictly ordered, need to find every combination of N faces to reroll and try them all
+        // However, there should be at most one Mortal die
+        // ******USING ASSUMPTION THAT ONLY 0 OR 1 MORTAL DIE EXISTS******
+        let mortalFaceSetList:  Array< PowerDieFace[] >= []
+        for (let i=0; i<regRerollSet.mortal; i++) {
+            mortalFaceSetList.push( MORTAL_DIE.faces )
+        }
+        for (let i=0; i<blackedRerollSet.mortal; i++) {
+            mortalFaceSetList.push( makeBlacked(MORTAL_DIE.faces) )
+        }
+
+
+        // Get list of just Red/Black/Mortal Face Set Lists
+        // ******USING ASSUMPTION THAT ONLY 0 OR 1 MORTAL DIE EXISTS******
+        const inputRBM:Array<PowerDieFace[]> = redFaceSetList.concat(blackFaceSetList).concat(mortalFaceSetList)
         
 
-        // If no White Face Set Lists, ignore and use only Red/Black
+        // If no White Face Set Lists, ignore and use only Red/Black/Mortal
         if (whiteFaceSetListCombos.length === 0) {  
-            const outcomes = dieOutcomes(inputRB)
+            const outcomes = dieOutcomes(inputRBM)
             const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes, hopeValue)
 
             // Compare to previous best and update if better
@@ -311,7 +339,7 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         } else {
             // If White, then iterate through list of combinations
             for (let i=0; i<whiteFaceSetListCombos.length; i++) {
-                const fullInput = inputRB.concat( whiteFaceSetListCombos[i] )
+                const fullInput = inputRBM.concat( whiteFaceSetListCombos[i] )
                 const outcomes = dieOutcomes(fullInput)
                 const successPcnt = thresholdCheck(thresholdValue, breakValue, outcomes, hopeValue)
                 
@@ -360,6 +388,12 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         for ( let i=0; i < (bestSets.regular.black+bestSets.blacked.black); i++ ) {
             i<bestSets.blacked.black ? idsToRerollBlacked.push( blackList[i].id ) : idsToRerollRegular.push( blackList[i].id )
         }
+
+        // Add Mortal dice ids starting from bottom of list
+        for ( let i=0; i < (bestSets.regular.mortal+bestSets.blacked.mortal); i++ ) {
+            i<bestSets.blacked.mortal ? idsToRerollBlacked.push( mortalList[i].id ) :  idsToRerollRegular.push( mortalList[i].id )
+        }
+
     } else {
         // Add Red dice ids starting from bottom of list
         for ( let i=0; i<bestSets.regular.red; i++ ) {
@@ -369,6 +403,11 @@ function findBestRerollsRecur ( thresholdValue:number, breakValue:number, hopeVa
         // Add Black dice ids starting from bottom of list
         for ( let i=0; i<bestSets.regular.black; i++ ) {
             idsToRerollRegular.push( blackList[i].id )
+        }
+
+        // Add Mortal dice ids starting from bottom of list
+        for ( let i=0; i<bestSets.regular.mortal; i++ ) {
+            idsToRerollRegular.push( mortalList[i].id )
         }
     }
 
@@ -418,61 +457,78 @@ function filterDiceByColor( diceInfo:Array<DieInfo>, filterColor:string ) :Array
  * @param redMax Integer, maximum number of rerolls that can be allocated to red dice.
  * @param blackMax Integer, maximum number of rerolls that can be allocated to black dice.
  * @param whiteMax Integer, maximum number of rerolls that can be allocated to white dice.
+ * @param mortalMax Integer, maximum number of rerolls that can be allocated to Mortal dice.
  * @returns Array<RerollDice>, each element is a different combination of values of dice to reroll.
  */
-function generateRerollCombos( rerolls:number, redMax:number, blackMax:number, whiteMax:number) : Array<RerollDice> {
+function generateRerollCombos( rerolls:number, redMax:number, blackMax:number, whiteMax:number, mortalMax:number) : Array<RerollDice> {
     // If enough rerolls to reroll all dice, simply return array with single RerollDice object with maxed values
-    if ( rerolls >= (redMax+blackMax+whiteMax)) {
+    if ( rerolls >= (redMax+blackMax+whiteMax+mortalMax)) {
         return [{
             red: redMax,
             black: blackMax,
-            white: whiteMax
+            white: whiteMax,
+            mortal: mortalMax
         }]
     }
 
     // Array to store the different combinations of rerolling dice we want to try
     const rerollCombos:Array<RerollDice> = []
 
-    // *r* counts rerolls being assigned to Red
-    for (let redsToReroll = 0; redsToReroll <= rerolls; redsToReroll++) {
-        
-        // If *r* exceeds available dice, not enough to use all rerolls: terminate current iteration
-        if ( redsToReroll > redMax ) continue
+    // Iterate over number of Red Dice to reroll, capped at maximum number of total rerolls or maximum number of red dice available
+    for (let redsToReroll = 0; redsToReroll <= rerolls && redsToReroll <= redMax; redsToReroll++) {  
 
         // Check if more to allocate and proceed to next color (black)
         let remAfterRed = rerolls - redsToReroll
-        if (remAfterRed > 0 ) {
-            // *b* counts rerolls being assigned to Black
-            for ( let blacksToReroll = 0; blacksToReroll <= remAfterRed; blacksToReroll++ ) {
-                // If *b* exceeds available dice, not enough to use all rerolls: terminate current iteration
-                if ( blacksToReroll > blackMax ) continue
-
-                // Check if more to allocate and proceed to next color (white)
-                let whitesToReroll = remAfterRed - blacksToReroll
-
-                // If *w* exceeds available dice, not enough to use all rerolls: terminate current iteration
-                if ( whitesToReroll > whiteMax ) continue
-
-                // Allocate reroll counts
-                const newReroll:RerollDice = {
-                    red: redsToReroll,
-                    black: blacksToReroll,
-                    white: whitesToReroll
-                }
-                
-                // Add to list of reroll combos to investigate
-                rerollCombos.push(newReroll)                    
-            }
-        } else { 
-            // Allocate reroll counts (only red are non-zero in this condition)
+        if ( !(remAfterRed > 0) ) {
+            // No more rerolls to allocate, (only red are non-zero in this condition)
             const newReroll:RerollDice = {
                 red: redsToReroll,
                 black: 0,
-                white: 0
+                white: 0,
+                mortal: 0
             }
 
             // Add to list of reroll combos to investigate
             rerollCombos.push(newReroll) 
+        } else {
+            // More rerolls to allocate, proceed to next color (black)
+            // Iterate over number of Black Dice to reroll, capped at maximum number of remaining rerolls or maximum number of black dice available
+            for ( let blacksToReroll = 0; blacksToReroll <= remAfterRed && blacksToReroll <= blackMax; blacksToReroll++ ) {
+
+                let remAfterBlack = remAfterRed - blacksToReroll
+                if ( !(remAfterBlack > 0) ) {
+                    // No more rerolls to allocate, (only red and black are non-zero in this condition)
+                    const newReroll:RerollDice = {
+                        red: redsToReroll,
+                        black: blacksToReroll,
+                        white: 0,
+                        mortal: 0
+                    }
+
+                    // Add to list of reroll combos to investigate
+                    rerollCombos.push(newReroll) 
+                } else {
+                    // More rerolls to allocate, proceed to next color (white)
+                    // Iterate over number of White Dice to reroll, capped at maximum number of remaining rerolls or maximum number of white dice available
+                    for ( let whitesToReroll = 0; whitesToReroll <= remAfterBlack && whitesToReroll <= whiteMax; whitesToReroll++ ) {
+                        let mortalsToReroll = remAfterBlack - whitesToReroll
+
+                        // Stop iteration if not enough Mortal dice to use remaining rerolls
+                        if ( mortalMax < mortalsToReroll ) continue
+
+                        // Allocate reroll counts if valid result
+                        const newReroll:RerollDice = {
+                            red: redsToReroll,
+                            black: blacksToReroll,
+                            white: whitesToReroll,
+                            mortal: mortalsToReroll
+                        }
+                        
+                        // Add to list of reroll combos to investigate
+                        rerollCombos.push(newReroll)     
+                    }     
+                }          
+            }
         }
     }
 

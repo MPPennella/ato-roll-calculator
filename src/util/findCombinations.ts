@@ -2,7 +2,7 @@ import factorial from './factorial'
 import findBestRerolls from './findBestRerolls'
 // Data and types
 import { DieInfo, PowerDieTracker } from '../types'
-import { RED_DIE, BLACK_DIE, WHITE_DIE } from '../data/PowerDiceData';
+import { RED_DIE, BLACK_DIE, WHITE_DIE, MORTAL_DIE } from '../data/PowerDiceData';
 
 
 type CombinationMap = {
@@ -41,24 +41,26 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
     const redCount:number = diceList.filter((die) =>  die.color === "red" ? true : false ).length
     const blackCount:number = diceList.filter((die) =>  die.color === "black" ? true : false ).length
     const whiteCount:number = diceList.filter((die) =>  die.color === "white" ? true : false ).length
+    const mortalCount:number = diceList.filter((die) => die.color === "mortal" ? true : false ).length
     
     // Find unique combinations and weight of each combination
 
     // All dice are six-sided
     const DIE_SIDES = 6
 
-    const totalWeight = Math.pow(DIE_SIDES, redCount) * Math.pow(DIE_SIDES, blackCount) * Math.pow(DIE_SIDES, whiteCount)
+    const totalWeight = Math.pow(DIE_SIDES, redCount) * Math.pow(DIE_SIDES, blackCount) * Math.pow(DIE_SIDES, whiteCount) * Math.pow(DIE_SIDES, mortalCount)
     
     // Generate lists separately for each color of die
     const redList : CombinationMap[] = generateCombinationList(redCount)
     const blackList : CombinationMap[] = generateCombinationList(blackCount)
     const whiteList : CombinationMap[] = generateCombinationList(whiteCount)
+    const mortalList : CombinationMap[] = generateCombinationList(mortalCount)
 
     
     let weightSum:number = redList.reduce( (p,cur) => p + cur.weight, 0) 
         * blackList.reduce( (p,cur) => p + cur.weight, 0) 
         * whiteList.reduce( (p,cur) => p + cur.weight, 0)
-    
+        * mortalList.reduce( (p,cur) => p + cur.weight, 0)
    
     // Then combine lists together to create master list, then turn list of die combinations and weights into chance of succeeding with rerolls
 
@@ -67,18 +69,18 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
     for (let rMap of redList) {
         const rDice:Array<DieInfo> = rMap.combination.map( (number, i) => {
             return {
-            id: i,
-            color: "red",
-            face: RED_DIE.faces[number]
+                id: i,
+                color: "red",
+                face: RED_DIE.faces[number]
             }
         })
 
         for (let bMap of blackList) {
             const bDice:Array<DieInfo> = bMap.combination.map( (number, j) => {
                 return {
-                id: j+10000,
-                color: "black",
-                face: BLACK_DIE.faces[number]
+                    id: j+10000,
+                    color: "black",
+                    face: BLACK_DIE.faces[number]
                 }
             })
     
@@ -87,13 +89,27 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
 
                 const wDice:Array<DieInfo> = wMap.combination.map( (number, k) => {
                     return {
-                    id: k+100000000,
-                    color: "white",
-                    face: WHITE_DIE.faces[number]
+                        id: k+100000000,
+                        color: "white",
+                        face: WHITE_DIE.faces[number]
                     }
                 })
+                
 
-                weightedChanceList.push( findBestRerolls(atThreshold, breaks, hopeValue, rerolls, blacks, rDice.concat(bDice).concat(wDice) ).success * (rMap.weight*bMap.weight*wMap.weight ) )
+                for (let mMap of mortalList) {
+
+                    const mDice:Array<DieInfo> = mMap.combination.map( (number, l) => {
+                        return {
+                            id: l+1000000000000,
+                            color: "mortal",
+                            face: MORTAL_DIE.faces[number]
+                        }
+                    })
+                    
+
+                    weightedChanceList.push( findBestRerolls(atThreshold, breaks, hopeValue, rerolls, blacks, rDice.concat(bDice).concat(wDice).concat(mDice) ).success * (rMap.weight*bMap.weight*wMap.weight*mMap.weight ) )
+
+                }
 
             }
         }
@@ -103,7 +119,7 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
     const rrResult = weightedChanceList.reduce( (acc,val) => acc+val, 0) / totalWeight
 
     console.log("------------")
-    console.log(`COMBINATIONS: ${ redList.length*blackList.length*whiteList.length }`)
+    console.log(`COMBINATIONS: ${ redList.length*blackList.length*whiteList.length*mortalList.length }`)
     console.log(`WEIGHT SUM: ${weightSum}`)
     // console.log(`THEORETICAL WEIGHT: ${totalWeight}`)  
     console.log(`WEIGHTED AVG: ${ rrResult}`)
@@ -116,7 +132,7 @@ export default function findCombinations (atThreshold:number, breaks:number, rer
  * For a given number of dice, generates all the possible combinations of faces of those dice and the weight of those combinations appearing when rolled
  * 
  * @param dieCount Integer number of dice of the same color
- * @param color Optional: accepts strings `"red"`, `"black"`, and `"white"`. Used to speed up processing of dice with repeated faces (not yet implemented)
+ * @param color Optional: accepts strings `"red"`, `"black"`, `"white"`, and `"mortal"`. Used to speed up processing of dice with repeated faces (not yet implemented)
  * @returns `CombinationMap[]` with each map object containing a unique combination and the weight of that combination's appearance.
  */
 function generateCombinationList(dieCount:number, color?:string) : Array<CombinationMap> {
