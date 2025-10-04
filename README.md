@@ -12,6 +12,11 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
+### 1.7.1
+* Added support for new Cycle 4/5 feature - the Mortal Die
+* Dice pool is now supply-limited for each color of die in addition to cap on total number of dice
+* New app icon
+
 ### 1.6.1
 
 * Redid method of display for dice:
