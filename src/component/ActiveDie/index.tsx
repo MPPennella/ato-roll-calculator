@@ -1,5 +1,6 @@
 import React from 'react'
 import { PowerDieFace } from '../../types/'
+import ActiveDieFaceSelector from '../ActiveDieFaceSelector'
 import './ActiveDie.css'
 
 function ActiveDie (
@@ -16,6 +17,9 @@ function ActiveDie (
         remove:(id:number)=>void, 
         upActFace:(id:number, faceLabel:string, newActiveFaceSet:PowerDieFace[])=>void
     }) : React.JSX.Element {
+    
+    const [selected, setSelected] = React.useState(-1)
+    
     
     // Map to correspond option values to face objects
     const faceMap = new Map< string, PowerDieFace>()
@@ -43,7 +47,7 @@ function ActiveDie (
    
 
     // Updates the active face selection
-    function updateSelected(e:any):void {
+    function updateSelected(e:React.ChangeEvent<HTMLSelectElement>):void {
         const optionId = e.target.value
         
         // By default treat as random selected
@@ -58,6 +62,24 @@ function ActiveDie (
 
         // Update states and propagate change info
         // setActiveFace(optionId)
+        upActFace(dieID, optionId, newActiveFaceSet )
+    }
+
+
+    // Updates the active face selection
+    function updateSelectedHoriz(e: React.MouseEvent<HTMLDivElement>):void {
+        const target = e.target as HTMLDivElement
+        const optionId = target.dataset.index as string
+        
+        // By default treat as random selected
+        let newActiveFaceSet = faceOptions
+        
+        for (const [k,v] of faceMap) {
+            if (k === "face"+optionId) {newActiveFaceSet = [v]; break}
+        }
+
+        // Update states and propagate change info
+        setSelected(Number.parseInt(optionId))
         upActFace(dieID, optionId, newActiveFaceSet )
     }
 
@@ -87,14 +109,44 @@ function ActiveDie (
             children={faceOptionComponents}
         />
     }
-    
+
+    // Create the component for the horizontal style of selectable graphical faces
+    function renderFaceOptionsHoriz() : React.JSX.Element {
+        // Create array for different face options and initialize with Random option
+        let faceOptionComponents:Array<React.JSX.Element> = []
+
+        // Generate other needed face options
+        // Currently generates duplicate faces if the option is on multiple sides of a die
+        // TODO: update in future to streamline view
+        for (let i=0; i<faceOptions.length; i++) {
+            let curr = faceOptions[i]
+            faceOptionComponents.push(
+                <ActiveDieFaceSelector key={i} index={i} selected={ selected===i ? true : false} >
+                    {/* { `P${curr.power}`} <br/> {`B${curr.potential}`}  { cycle>=3 ? <br/>:""} {`${ cycle>=3 ? `D${curr.dot}` : "" }` } */}
+                    { `P•B${cycle>=3 ? "•D":""}`} <br/> {`${curr.power}•${curr.potential}${cycle>=3 ? `•${curr.dot}` : ""}`} 
+                </ActiveDieFaceSelector>
+            )
+        }
+
+        return <div
+            className="FaceSelectPanel"
+            children={faceOptionComponents}
+            onClick={updateSelectedHoriz}
+        />
+    }
+
     return (
-        <div className='DieWrapper'>
+        // <div className='DieWrapper'>
+        //     <div className={'DieBox ' + colorTag + ' ' + highlightTag}>
+        //         <button onClick={removeDie} className='RemoveButton'>X</button>
+        //     </div>
+        //     {renderFaceOptions()}
+        // </div>
+        <div className='DieWrapperHoriz'>
             <div className={'DieBox ' + colorTag + ' ' + highlightTag}>
                 <button onClick={removeDie} className='RemoveButton'>X</button>
-                {/* {color} */}
             </div>
-            {renderFaceOptions()}
+            {renderFaceOptionsHoriz()}
         </div>
     )
 }

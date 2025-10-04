@@ -9,6 +9,10 @@
 }
 
 .ResultSubHeader {
+    margin-top: 6px;
     font-weight: bold;
 }
 
+.RefreshButton {
+    margin-left: 5px;
+}

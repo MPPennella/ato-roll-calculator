@@ -22,7 +22,7 @@ function ResultDisplayPanel (
             <div className="ResultSubHeader">After Rerolls</div>
             <div>
                 Chance of success: {successPcntAft.toFixed(3)}% 
-                <button onClick={updateRerollDisplay}>&#10227;{/* Refresh Icon */}</button>
+                <button className="RefreshButton" onClick={updateRerollDisplay}>&#10227;{/* Refresh Icon */}</button>
             </div>
             {/* <div>Average: {averageAft.toFixed(3)}</div> */}
             {/* <button onClick={updateRerollDisplay}>&#10227; Update</button> */}

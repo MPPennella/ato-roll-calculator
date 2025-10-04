@@ -12,6 +12,18 @@ The user can also select individual faces for each die, representing the result 
 
 ## Version History
 
+### 1.6.1
+
+* Redid method of display for dice:
+  * Instead of large colored die with traditional dropdown below, now displays a smaller colored die and face selectors to the side
+  * The six faces are all visible with relevant symbol amounts, and will light up with a highlight when selected
+  * Old method of display may return as an option in the future
+* Added meta tags that should help with correct display of light/dark mode schemes on some browsers
+
+### 1.5.3
+
+* Implemented full functionality for Black Tokens - works with all types of Power Die, and in combination with regular Power Rerolls
+
 ### 1.5.2
 
 * Implemented partial funcitonality for Black Tokens, only works if all reroll sources are one type (regular/Black), or enough Blacks to cover all needed rerolls
